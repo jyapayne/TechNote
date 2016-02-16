@@ -1,0 +1,26 @@
+body, html{
+    margin: 0px;
+    height: 100%;
+}
+#main{
+    min-height: 100%;
+}
+.fill-height{
+    height: 100%;
+}
+.noselect{
+    -webkit-user-select: none;
+}
+.inline{
+    display: inline-block;
+    vertical-align: top;
+}
+.left{
+}
+.right{
+    float: right;
+}
+#library-nav{
+    border-right: solid 1px #d9d9d9;
+    width: 200px;
+}
