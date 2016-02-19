@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactDOM from 'react-dom'
 
 import mui from 'material-ui'
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
@@ -17,6 +18,16 @@ import Divider from 'material-ui/lib/divider'
 import { SelectableContainerEnhance } from 'material-ui/lib/hoc/selectable-enhance'
 
 const colors = styles.Colors
+
+function eventFire(el, etype){
+  if (el.fireEvent) {
+    el.fireEvent('on' + etype);
+  } else {
+    var evObj = document.createEvent('Events');
+    evObj.initEvent(etype, true, false);
+    el.dispatchEvent(evObj);
+  }
+}
 
 const {AppBar,
       AppCanvas,
@@ -71,7 +82,6 @@ export default class LibraryNav extends React.Component {
 
     constructor(props, context){
         super(props, context)
-        console.log(this.state)
         this.state = {
             open: false,
             navItems: [
@@ -109,6 +119,17 @@ export default class LibraryNav extends React.Component {
             ],
             notebooks: [
                 {'state': 'editing', 'title': '', 'notes': 0},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
+                {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10},
                 {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10}
             ]
         }
@@ -139,6 +160,10 @@ export default class LibraryNav extends React.Component {
             nb.state = 'displaying'
             this.setState({notebooks: this.state.notebooks})
         }
+        else if(nb.title){
+            nb.state = 'displaying'
+            this.setState({notebooks: this.state.notebooks})
+        }
     };
 
     addNotebookTapped = () => {
@@ -160,49 +185,53 @@ export default class LibraryNav extends React.Component {
         }
     };
 
+    renameTapped = (i) => {
+        var nbs = this.state.notebooks
+        nbs[i].state = 'editing'
+        this.setState({notebooks: nbs})
+        this.props.closeContextMenu()
+        //ReactDOM.findDOMNode(this.refs[nbs[i].title+i]).click()
+    }
+
+    deleteTapped = (i) => {
+        var nbs = this.state.notebooks
+        nbs.splice(i, 1)
+        this.setState({notebooks: nbs})
+        this.props.closeContextMenu()
+    }
+
+    contextMenuItems = (i) => {
+        return [
+            <MenuItem
+                key='rename'
+                primaryText="Rename"
+                leftIcon={<Edit />}
+                onTouchTap={this.renameTapped.bind(this, i)}/>,
+            <Divider key='div1'/>,
+            <MenuItem
+                key='delete'
+                primaryText="Delete"
+                onTouchTap={this.deleteTapped.bind(this, i)}
+                leftIcon={<Delete />} />
+        ]
+
+    };
+
     noteBookTapped = (i, ev) => {
         var nativeEvent = ev.nativeEvent
         if(nativeEvent.button == 2){
             //Right click
             var x = nativeEvent.pageX
             var y = nativeEvent.pageY
-            this.context.contextMenuItems = [
-                        <MenuItem primaryText="Rename" leftIcon={<Edit />} />,
-                        <Divider />,
-                        <MenuItem primaryText="Delete" leftIcon={<Delete />} />
-            ]
 
-            this.setState({
-                popTop: y,
-                popLeft: x,
-                open: true 
-            })
+            this.props.updateContextMenu(this.contextMenuItems(i))
+            this.props.openContextMenu(x, y)
         }
-    
     };
-
-  	handleRequestClose = () => {
-		this.setState({
-		  open: false,
-		})
-  	};
 
     render(){
         return (
             <div id={this.props.id} className={this.props.className || ""}>
-                <div style={{position: 'absolute', width: 1, height: 1, top: this.state.popTop, left: this.state.popLeft}} ref='menuPos'></div>
-                <Popover
-                    open={this.state.open}
-                    anchorEl={this.refs.menuPos}
-          			anchorOrigin={{horizontal: 'middle', vertical: 'bottom'}}
-          			targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                    onRequestClose={this.handleRequestClose}>
-                    <Menu desktop={true}>
-                        <MenuItem primaryText="Rename" leftIcon={<Edit />} />
-                        <Divider />
-                        <MenuItem primaryText="Delete" leftIcon={<Delete />} />
-                    </Menu>
-                </Popover>
                 <SelectableList subheader="Library">
                         {this.state.navItems.map((item, i) => {
                             return <ListItem
@@ -216,6 +245,7 @@ export default class LibraryNav extends React.Component {
                         })}
                   </SelectableList>
                   <Divider />
+                  <div>
                   <List subheader={<div>
                                         <div className="inline">NoteBooks</div>
                                         <IconButton
@@ -227,6 +257,7 @@ export default class LibraryNav extends React.Component {
                                                 color={colors.grey500}/>
                                         </IconButton>
                                     </div>}>
+                      <div>
 
                         {this.state.notebooks.map((notebook, i) =>{
                             var l = null
@@ -252,6 +283,7 @@ export default class LibraryNav extends React.Component {
                                 l = <ListItem
                                         key={i}
                                         primaryText={notebook.title}
+                                        ref={notebook.title+i}
                                         className="noselect"
                                         onTouchTap={this.noteBookTapped.bind(this, i)}
                                         leftIcon={<NoteBook color={colors.grey500}/>}
@@ -260,14 +292,11 @@ export default class LibraryNav extends React.Component {
                             }
                             return l
                         })}
+                      </div>
                   </List>
-
+                </div>
             </div>
         )
     }
 }
-
-LibraryNav.contextTypes = {
-    contextMenuItems: React.PropTypes.array.isRequired
-};
 

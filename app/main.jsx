@@ -11,6 +11,20 @@ import Delete from 'material-ui/lib/svg-icons/action/delete'
 import Divider from 'material-ui/lib/divider'
 import moment from 'moment'
 import mui from 'material-ui'
+import {Provider} from 'react-redux'
+import { createStore } from 'redux'
+import rootReducer from './reducers'
+import * as ContextMenuActions from './actions'
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+
+
+function getStore(reducer, initialState){
+    return createStore(reducer, initialState)
+}
+
+const store = getStore(rootReducer)
 
 const {
     Popover,
@@ -43,11 +57,18 @@ class Main extends React.Component {
         createTables()
         this.state = {
             entries: [],
-            contextMenuOpen: false,
-            contextMenuItems: this.context.contextMenuItems
         }
     }
 
+    static get childContextTypes(){
+        return {muiTheme: React.PropTypes.object}
+    }
+
+    getChildContext() {
+        return {
+            muiTheme: getMuiTheme(DefaultRawTheme)
+        }
+    }
 
     entriesTapped = () => {
         r.table('notes').getAll('jyapayne@gmail.com', {index: 'account_id'}).run().then(
@@ -58,33 +79,27 @@ class Main extends React.Component {
     };
 
   	handleRequestClose = () => {
-		this.setState({
-		  contextMenuOpen: false,
-		})
+        this.props.contextMenuActions.closeContextMenu()
   	};
-
-    tapped = () => {
-        console.log('tapped')
-        console.log(this.context.contextMenuItems)
-    };
 
     render() {
     
+        const { contextMenu, contextMenuActions } = this.props
         return (
-            <div onTouchTap={this.tapped}>
+            <div className="fill-height">
                 <div style={{position: 'absolute',
                              width: 1,
                              height: 1,
-                             top: this.state.popTop,
-                             left: this.state.popLeft}} ref='menuPos'></div>
+                             top: contextMenu.y,
+                             left: contextMenu.x}} ref='menuPos'></div>
                 <Popover
-                    open={this.state.contextMenuOpen}
+                    open={contextMenu.opened}
                     anchorEl={this.refs.menuPos}
           			anchorOrigin={{horizontal: 'middle', vertical: 'bottom'}}
           			targetOrigin={{horizontal: 'left', vertical: 'top'}}
                     onRequestClose={this.handleRequestClose}>
                     <Menu desktop={true}>
-                        {this.state.contextMenuItems.map(function (el, i){
+                        {contextMenu.items.map(function (el, i){
                             return el;
                         })}
                     </Menu>
@@ -94,39 +109,40 @@ class Main extends React.Component {
                     id="library-nav"
                     ref="libraryNav"
                     entriesTapped={this.entriesTapped}
-                    className="left inline fill-height"/>
+                    className="left inline fill-height"
+                    {...contextMenuActions}
+                />
             </div>
         )
     }
-
-}
-class S extends React.Component {
-    static get childContextTypes(){
-        return {muiTheme: React.PropTypes.object,
-                contextMenuItems: React.PropTypes.array}
-    }
-
-    getChildContext() {
-        return {
-            muiTheme: getMuiTheme(DefaultRawTheme),
-            contextMenuItems: []
-        }
-    }
-
-    render(){
-        return <Main />
-    }
-
 }
 
+Main.propTypes = {
+    contextMenu: React.PropTypes.object.isRequired,
+    contextMenuActions: React.PropTypes.object.isRequired
+}
 
-Main.contextTypes = {
-    contextMenuItems: React.PropTypes.array.isRequired
-};
+function mapStateToProps(state) {
+    return {
+        contextMenu: state.contextMenu
+    }
+}
 
+function mapDispatchToProps(dispatch) {
+    return {
+        contextMenuActions: bindActionCreators(ContextMenuActions, dispatch)
+    }
+}
+
+let App = connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Main)
+
+export default App
 
 ReactDOM.render(
-    <S />,
+    <Provider store={store}><App /></Provider>,
     document.getElementById('main')
 );
 
