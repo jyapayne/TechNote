@@ -1,7 +1,7 @@
 import React from 'react'
 
 import mui from 'material-ui'
-import ThemeManager from 'material-ui/lib/styles/theme-manager'
+import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
 
 import List from 'material-ui/lib/lists/list'
 import ListItem from 'material-ui/lib/lists/list-item'
@@ -46,7 +46,7 @@ export default class EntrySelector extends React.Component {
 
     getChildContext() {
         return {
-            muiTheme: ThemeManager.getMuiTheme(DefaultRawTheme)
+            muiTheme: getMuiTheme(DefaultRawTheme)
         }
     }
 
