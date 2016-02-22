@@ -74,7 +74,7 @@ function wrapState(ComposedComponent) {
   return StateWrapper;
 }
 
-SelectableList = wrapState(SelectableList);
+SelectableList = wrapState(SelectableList)
 
 const DefaultRawTheme = Styles.LightRawTheme
 
@@ -133,18 +133,56 @@ export default class LibraryNav extends React.Component {
                 {'state': 'displaying', 'title': 'FieldNotes', 'notes': 10}
             ]
         }
+        this.sortNotebooks(true)
     }
+
+    compareNotebooks = (a, b) => {
+        let atitle = a.title.toLowerCase()
+        let btitle = b.title.toLowerCase()
+
+        if(atitle > btitle)
+            return 1  
+        if(atitle < btitle)
+            return -1
+        return 0
+    };
+
+    sortNotebooks = (notset) => {
+        this.state.notebooks.sort(this.compareNotebooks)
+        if (!notset){
+            this.setState({notebooks: this.state.notebooks})
+        }
+    };
 
     static get childContextTypes(){
         return {muiTheme: React.PropTypes.object}
     }
-
 
     getChildContext() {
         return {
             muiTheme: getMuiTheme(DefaultRawTheme)
         }
     }
+
+    entriesTapped = (i, item, type, ev) => {
+
+    };
+
+    starredTapped = (i, item, type, ev) => {
+
+    };
+
+    recentsTapped = (i, item, type, ev) => {
+        
+    };
+
+    trashTapped = (i, item, type, ev) => {
+        
+    };
+
+    allNotesTapped = (i, item, type, ev) => {
+        
+    };
 
     blank(){
     
@@ -159,6 +197,7 @@ export default class LibraryNav extends React.Component {
             nb.title = notebookName
             nb.state = 'displaying'
             this.setState({notebooks: this.state.notebooks})
+            this.sortNotebooks()
         }
         else if(nb.title){
             nb.state = 'displaying'
@@ -168,29 +207,39 @@ export default class LibraryNav extends React.Component {
 
     addNotebookTapped = () => {
         var nbs = this.state.notebooks
-        nbs.push({'state': 'editing',
+        nbs.splice(0, 0, {'state': 'editing',
                   'title': '',
                   'notes': 0})
         this.setState({notebooks: nbs})
     };
 
     newNotebookTyped = (i) => {
+
     };
 
     menuItemClicked = (i, ev) => {
+        var item = this.state.navItems[i]
+        var type = 'leftClick'
         var nativeEvent = ev.nativeEvent
         if(nativeEvent.button == 2){
             //Right click
-
+            type = 'rightClick'
         }
+        item.clicked(i, item, type, ev)
     };
 
     renameTapped = (i) => {
         var nbs = this.state.notebooks
         nbs[i].state = 'editing'
-        this.setState({notebooks: nbs})
-        this.props.closeContextMenu()
-        //ReactDOM.findDOMNode(this.refs[nbs[i].title+i]).click()
+        this.setState({notebooks: nbs}, () => {
+            console.log(i)
+            var nbsx = this.state.notebooks
+            this.props.closeContextMenu()
+            //this.refs['textField'+i].focus()
+            //$(ReactDOM.findDOMNode(this.refs['listItem'+i])).click()
+            //console.log(node.find(':input'))
+            //node.find(':input')[0].focus()
+        })
     }
 
     deleteTapped = (i) => {
@@ -232,7 +281,7 @@ export default class LibraryNav extends React.Component {
     render(){
         return (
             <div id={this.props.id} className={this.props.className || ""}>
-                <SelectableList subheader="Library">
+                <SelectableList id="main-nav" subheader="Library">
                         {this.state.navItems.map((item, i) => {
                             return <ListItem
                                     primaryText={item.name}
@@ -246,7 +295,7 @@ export default class LibraryNav extends React.Component {
                   </SelectableList>
                   <Divider />
                   <div>
-                  <List subheader={<div>
+                  <List id="nblist" subheader={<div>
                                         <div className="inline">NoteBooks</div>
                                         <IconButton
                                             onTouchTap={this.addNotebookTapped}
@@ -257,7 +306,7 @@ export default class LibraryNav extends React.Component {
                                                 color={colors.grey500}/>
                                         </IconButton>
                                     </div>}>
-                      <div>
+                      <div id="notebook-list">
 
                         {this.state.notebooks.map((notebook, i) =>{
                             var l = null
