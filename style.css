@@ -11,6 +11,11 @@ body, html{
 .noselect{
     -webkit-user-select: none;
 }
+
+.list > div:first-child{
+    -webkit-user-select: none;
+}
+
 .inline{
     display: inline-block;
     vertical-align: top;

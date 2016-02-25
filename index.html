@@ -13,6 +13,7 @@
     <div id="main">
 	</div>
     <script>
+        var APP_NAME = 'TechNote'
         window.$ = window.jQuery = require('./app/static/jquery-1.12.0.min.js');
         $(document).ready(function(){
         document.addEventListener("keydown", function (e) {
@@ -36,6 +37,6 @@
             });
         });
     </script>
-    <script type="text/javascript" src="dist/bundle.js"></script>
+    <script type="text/javascript" src="app/dist/bundle.js"></script>
   </body>
 </html>

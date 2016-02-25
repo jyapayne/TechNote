@@ -1,9 +1,9 @@
 var path = require('path');
 
 module.exports = {
-        entry: './app/main.jsx',
+        entry: './index.jsx',
         output: {
-            path: __dirname + "/dist",
+            path: __dirname + "/app/dist",
             filename: "bundle.js",
             sourceMapFilename: 'bundle.map'
         },
@@ -23,7 +23,8 @@ module.exports = {
         resolve:{
             extensions: ['', '.js', '.jsx'],
             root: [
-                path.resolve('./app/modules')
+                path.resolve('./app/components'),
+                path.resolve('./app')
             ]
         }
 };
