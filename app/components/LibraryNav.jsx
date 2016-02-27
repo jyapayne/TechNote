@@ -15,7 +15,7 @@ import Folder from 'material-ui/lib/svg-icons/file/folder'
 import Edit from 'material-ui/lib/svg-icons/editor/mode-edit'
 import Delete from 'material-ui/lib/svg-icons/action/delete'
 import Divider from 'material-ui/lib/divider'
-import { SelectableContainerEnhance } from '../enhance/SelectableEnhance'
+import SelectableList from 'SelectableList'
 
 import uuid from 'node-uuid'
 import path from 'path-extra'
@@ -63,36 +63,6 @@ const {
     Styles,
     LeftNav,
     Paper} = mui
-
-let SelectableList = SelectableContainerEnhance(List)
-
-function wrapState(ComposedComponent) {
-  const StateWrapper = React.createClass({
-    getInitialState() {
-      return {selectedIndex: -1};
-    },
-    setIndex(i, func){
-      this.setState({
-        selectedIndex: i,
-      }, func);
-    },
-    handleUpdateSelectedIndex(e, index) {
-      this.setIndex(index);
-    },
-    render() {
-      return (
-        <ComposedComponent
-          {...this.props}
-          {...this.state}
-          valueLink={{value: this.state.selectedIndex, requestChange: this.handleUpdateSelectedIndex}}
-        />
-      );
-    },
-  });
-  return StateWrapper;
-}
-
-SelectableList = wrapState(SelectableList)
 
 const DefaultRawTheme = Styles.LightRawTheme
 
@@ -432,7 +402,12 @@ export default class LibraryNav extends React.Component {
     render(){
         return (
             <div id={this.props.id} className={this.props.className+" leftnav"} open={this.state.open}>
-                <SelectableList ref='mainList' className="list" id="main-nav" subheader="Library">
+                <SelectableList
+                    ref='mainList'
+                    className="list"
+                    id="main-nav"
+                    selectedItemStyle={{backgroundColor: "#C8C8C8"}}
+                    subheader="Library">
                         {this.state.navItems.map((item, i) => {
                             return <ListItem
                                     primaryText={item.name}
@@ -445,17 +420,22 @@ export default class LibraryNav extends React.Component {
                         })}
                   </SelectableList>
                   <Divider />
-                  <SelectableList id="nblist" className="list" ref='notebookList' subheader={<div>
-                                        <div className="inline">NoteBooks</div>
-                                        <IconButton
-                                            onTouchTap={this.addNotebookTapped}
-                                            tooltip="Add New Notebook"
-                                            style={{'zIndex': 1000}}
-                                            className="right inline">
-                                            <AddCircleOutline
-                                                color={colors.grey500}/>
-                                        </IconButton>
-                                    </div>}>
+                  <SelectableList
+                      id="nblist"
+                      className="list"
+                      ref='notebookList'
+                      selectedItemStyle={{backgroundColor: "#C8C8C8"}}
+                      subheader={<div>
+                                    <div className="inline">NoteBooks</div>
+                                    <IconButton
+                                        onTouchTap={this.addNotebookTapped}
+                                        tooltip="Add New Notebook"
+                                        style={{'zIndex': 1000}}
+                                        className="right inline">
+                                        <AddCircleOutline
+                                            color={colors.grey500}/>
+                                    </IconButton>
+                                </div>}>
                         {this.notebookList()}
                   </SelectableList>
             </div>

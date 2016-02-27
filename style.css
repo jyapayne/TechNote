@@ -12,6 +12,14 @@ body, html{
     -webkit-user-select: none;
 }
 
+#search-bar {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+
+.list {
+    background-color: #EFEFEF !important;
+}
 .list > div:first-child{
     -webkit-user-select: none;
 }
@@ -25,9 +33,13 @@ body, html{
 .right{
     float: right;
 }
+#entry-list{
+    padding-top: 0px !important;
+}
 #entry-selector{
     border-right: solid 1px #d9d9d9;
     min-width: 250px;
+    max-width: 390px !important;
 }
 #library-nav{
     border-right: solid 1px #d9d9d9;
