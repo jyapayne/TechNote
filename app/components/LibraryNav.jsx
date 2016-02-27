@@ -26,6 +26,7 @@ import glob from 'glob'
 import fs from 'fs'
 import mkdirp from 'mkdirp'
 import jsfile from 'jsonfile'
+import rmdir from 'rimraf'
 
 const colors = styles.Colors
 
@@ -49,6 +50,7 @@ const {
     IconButton,
     EnhancedButton,
     NavigationClose,
+    FloatingActionButton,
     Menu,
     MenuItem,
     Mixins,
@@ -59,8 +61,7 @@ const {
     TextField,
     Dialog,
     Styles,
-    Tab,
-    Tabs,
+    LeftNav,
     Paper} = mui
 
 let SelectableList = SelectableContainerEnhance(List)
@@ -100,7 +101,7 @@ export default class LibraryNav extends React.Component {
     constructor(props, context){
         super(props, context)
         this.state = {
-            open: false,
+            open: true,
             navItems: [
                 {
                     'name': 'Entries',
@@ -338,7 +339,10 @@ export default class LibraryNav extends React.Component {
 
     deleteTapped = (i) => {
         var nbs = this.state.notebooks
-        nbs.splice(i, 1)
+        var nb = nbs.splice(i, 1)[0]
+
+        rmdir(nb.path, (err)=>{if(err){console.log(err)}})
+
         this.setState({notebooks: nbs})
         this.props.closeContextMenu()
     }
@@ -408,10 +412,12 @@ export default class LibraryNav extends React.Component {
                                     ref={notebook.title+i}
                                     className="noselect"
                                     onTouchTap={this.noteBookTapped.bind(this, i)}
-                                    leftIcon={<NoteBook onTouchTap={this.notebookIconTapped.bind(this, i)} color={colors.grey500}/>}
+                                    leftIcon={<NoteBook
+                                                onTouchTap={this.notebookIconTapped.bind(this, i)}
+                                                color={colors.grey500}/>}
                                     rightIcon={<Badge 
-                                                    style={{'padding': 0}}
-                                                    badgeContent={notebook.notes} />}
+                                                style={{'padding': 0}}
+                                                badgeContent={notebook.notes} />}
                                 />
                         }
                         return l
@@ -425,7 +431,7 @@ export default class LibraryNav extends React.Component {
 
     render(){
         return (
-            <div id={this.props.id} className={this.props.className || ""}>
+            <div id={this.props.id} className={this.props.className+" leftnav"} open={this.state.open}>
                 <SelectableList ref='mainList' className="list" id="main-nav" subheader="Library">
                         {this.state.navItems.map((item, i) => {
                             return <ListItem
@@ -439,7 +445,6 @@ export default class LibraryNav extends React.Component {
                         })}
                   </SelectableList>
                   <Divider />
-                  <div>
                   <SelectableList id="nblist" className="list" ref='notebookList' subheader={<div>
                                         <div className="inline">NoteBooks</div>
                                         <IconButton
@@ -453,7 +458,6 @@ export default class LibraryNav extends React.Component {
                                     </div>}>
                         {this.notebookList()}
                   </SelectableList>
-                </div>
             </div>
         )
     }

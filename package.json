@@ -71,7 +71,8 @@
     "react-redux": "^4.4.0",
     "react-tap-event-plugin": "^0.2.2",
     "redux": "^3.3.1",
-    "rethinkdbdash": "^2.2.17"
+    "rethinkdbdash": "^2.2.17",
+    "rimraf": "^2.5.2"
   },
   "ppapi_flash_version": "",
   "nodejs": true,

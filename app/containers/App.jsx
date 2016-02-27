@@ -1,6 +1,5 @@
 import React from 'react'
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
-import LibraryNav from 'LibraryNav'
 import Styles from 'material-ui/lib/styles'
 import Rethink from 'rethinkdbdash'
 import mui from 'material-ui'
@@ -9,6 +8,8 @@ import * as ContextMenuActions from '../actions'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 
+import LibraryNav from 'LibraryNav'
+import EntrySelector from 'EntrySelector'
 
 const {
     Popover,
@@ -94,6 +95,8 @@ class App extends React.Component {
                     className="left inline fill-height"
                     {...contextMenuActions}
                 />
+                <EntrySelector id="entry-selector" className="left inline fill-height" />
+
             </div>
         )
     }
