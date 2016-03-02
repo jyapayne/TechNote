@@ -12,6 +12,17 @@ import SelectableList from 'SelectableList'
 
 import Item from 'Item'
 
+import uuid from 'node-uuid'
+import path from 'path-extra'
+
+import * as utils from 'utils'
+import glob from 'glob'
+
+import fs from 'fs'
+import mkdirp from 'mkdirp'
+import jsfile from 'jsonfile'
+import rmdir from 'rimraf'
+
 const {AppBar,
       AppCanvas,
       FontIcon,
@@ -55,6 +66,17 @@ export default class EntrySelector extends React.Component {
     blank(){
     
     }
+    
+    addNoteTapped = () => {
+        this.createNewNote((note) => {
+            var notes = this.state.notes
+            notes.splice(0, 0, note)
+            this.setState({notes: notes}, () => {
+                //this.refs['textField0'].focus()
+            })
+        })
+
+    };
 
     render(){
         return (
@@ -65,11 +87,16 @@ export default class EntrySelector extends React.Component {
                         active={false}
                         selected={false}
                         leftIcon={<Search color={colors.grey600}/>}
-                        rightIconButton={<IconButton tooltip="Add New Note">
+                        rightIconButton={<IconButton
+                                            style={{'zIndex': 1000}}
+                                            touch={true}
+                                            onTouchTap={this.addNoteTapped}
+                                            tooltip="Add New Note">
                                             <Add color={colors.grey600}/>
                                          </IconButton>}>
                         <TextField
                             hintText="Filter by keyword, title or tag."
+                            style={{width: 210}}
                             onKeyDown={()=>{}}
                             onEnterKeyDown={()=>{}}
                         />
@@ -80,7 +107,7 @@ export default class EntrySelector extends React.Component {
                     ref="entryList"
                     selectedItemStyle={{backgroundColor: colors.grey300}}>
                     <ListItem
-                        leftAvatar={<Description color={colors.grey700}/>}
+                        leftIcon={<Description color={colors.grey600}/>}
                         primaryText="Today's Notes"
                         secondaryText={
                             <p>

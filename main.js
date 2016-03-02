@@ -56,7 +56,7 @@ app.on('ready', function() {
         "webgl": true,
         "allowRunningInsecureContent": false,
         "webaudio": true,
-        "zoomFactor": 1.0,
+        "zoomFactor": 0.85,
         "blinkFeatures": "",
         "experimentalFeatures": false,
         "allowDisplayingInsecureContent": false,
@@ -65,7 +65,7 @@ app.on('ready', function() {
         "partition": "",
         "webSecurity": true
     },
-    "title": "Electrify",
+    "title": "TechNote",
     "disableAutoHideCursor": false,
     "center": true
 });
@@ -75,7 +75,7 @@ app.on('ready', function() {
   mainWindow.webContents.setUserAgent("");
 
   mainWindow.webContents.on('did-finish-load',function(){
-    mainWindow.setTitle("Electrify");
+    mainWindow.setTitle("TechNote");
     
   });
 

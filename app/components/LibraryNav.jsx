@@ -30,15 +30,6 @@ import rmdir from 'rimraf'
 
 const colors = styles.Colors
 
-function eventFire(el, etype){
-  if (el.fireEvent) {
-    el.fireEvent('on' + etype);
-  } else {
-    var evObj = document.createEvent('Events');
-    evObj.initEvent(etype, true, false);
-    el.dispatchEvent(evObj);
-  }
-}
 String.prototype.trunc = String.prototype.trunc || function(n){
           return (this.length > n) ? this.substr(0, n-1)+'...' : this;
 };
@@ -108,7 +99,6 @@ export default class LibraryNav extends React.Component {
             notebooks: [
             ]
         }
-        this.sortNotebooks(true)
         this.getNotebooks()
     }
 
@@ -134,8 +124,8 @@ export default class LibraryNav extends React.Component {
             }
 
             this.state.notebooks.push(nb)
-            this.sortNotebooks(true)
         }
+        this.sortNotebooks(true)
     };
 
     compareNotebooks = (a, b) => {
@@ -210,17 +200,27 @@ export default class LibraryNav extends React.Component {
     };
 
 
-    createNewNotebook = (notebook, callback) => {
-        var notePath = utils.getNotebookPath(notebook)
-        mkdirp(notePath, (err) => {
+    createNewNotebook = (callback) => {
+        var nbUuid = uuid.v4().toUpperCase()
+        var nbPath = utils.getNotebookPathFromUUID(nbUuid)
+
+        var nb = {
+            'state': 'editing',
+            'title': '',
+            'uuid': nbUuid,
+            'path': nbPath,
+            'notes': 0
+        }
+
+        mkdirp(nbPath, (err) => {
+            if (callback){
+                callback(nb, err)
+            }
             if(err){
                 console.log('There was an error creating the directory '+notePath)
                 console.log(err)
             }
             else{
-                if (callback){
-                    callback()
-                }
                 this.createNotebookMeta(notebook)
             }
         })
@@ -242,7 +242,6 @@ export default class LibraryNav extends React.Component {
     };
 
     newNotebookUnfocus = (i) => {
-    
         var nb = this.state.notebooks[i]
 
         var tf = this.refs["textField"+i]
@@ -263,23 +262,13 @@ export default class LibraryNav extends React.Component {
     };
 
     addNotebookTapped = () => {
-        var nb_uuid = uuid.v4().toUpperCase()
-
-        var nb = {
-            'state': 'editing',
-            'title': '',
-            'uuid': nb_uuid,
-            'notes': 0
-        }
-
-        this.createNewNotebook(nb, () => {
+        this.createNewNotebook((nb, err) => {
             var nbs = this.state.notebooks
             nbs.splice(0, 0, nb)
             this.setState({notebooks: nbs}, () => {
                 this.refs['textField0'].focus()
             })
         })
-
     };
 
     newNotebookTyped = (i) => {
@@ -347,6 +336,10 @@ export default class LibraryNav extends React.Component {
         this.refs.mainList.setIndex(-1)
     };
 
+    preventEventProp = (ev) => {
+        ev.stopPropagation();
+    };
+
     notebookList = () => {
         return (<div id="notebook-list">
 
@@ -359,13 +352,16 @@ export default class LibraryNav extends React.Component {
                                     value={i}
                                     innerDivStyle={{'paddingBottom': 0,
                                                     'paddingTop': 0}}
+                                    onTouchTap={this.noteBookTapped.bind(this, i)}
                                     leftIcon={<NoteBook color={colors.grey500}/>}
                                     rightIcon={<Badge badgeContent={notebook.notes}/>}>
+
                                     
                                     <TextField
                                         ref={"textField"+i}
                                         fullWidth={true}
-                                        hintText={notebook.title.trunc(18) || "Notebook Name"}
+                                        style={{maxWidth: 120}}
+                                        hintText={notebook.title.trunc(14) || "Notebook Name"}
                                         underlineShow={false}
                                         onBlur={this.newNotebookUnfocus.bind(this, i)}
                                         onEnterKeyDown={this.newNotebookUnfocus.bind(this, i)}
@@ -377,14 +373,21 @@ export default class LibraryNav extends React.Component {
                             l = <ListItem
                                     key={notebook.uuid || i}
                                     value={i}
-                                    primaryText={notebook.title.trunc(18)}
+                                    primaryText={notebook.title.trunc(14)}
                                     tooltip={notebook.title}
                                     ref={notebook.title+i}
                                     className="noselect"
                                     onTouchTap={this.noteBookTapped.bind(this, i)}
-                                    leftIcon={<NoteBook
+                                    leftIcon={
+                                            <IconButton
+                                                onClick={this.preventEventProp}
                                                 onTouchTap={this.notebookIconTapped.bind(this, i)}
-                                                color={colors.grey500}/>}
+                                                style={{padding: 0}}
+                                            >
+                                                  <NoteBook
+                                                      color={colors.grey500}/>
+                                              </IconButton>
+                                              }
                                     rightIcon={<Badge 
                                                 style={{'padding': 0}}
                                                 badgeContent={notebook.notes} />}
@@ -397,6 +400,7 @@ export default class LibraryNav extends React.Component {
     };
 
     notebookIconTapped = (i, ev) => {
+        ev.stopPropagation()
     };
 
     render(){
@@ -406,7 +410,7 @@ export default class LibraryNav extends React.Component {
                     ref='mainList'
                     className="list"
                     id="main-nav"
-                    selectedItemStyle={{backgroundColor: "#C8C8C8"}}
+                    selectedItemStyle={{backgroundColor: colors.lightBlue100}}
                     subheader="Library">
                         {this.state.navItems.map((item, i) => {
                             return <ListItem
@@ -424,12 +428,13 @@ export default class LibraryNav extends React.Component {
                       id="nblist"
                       className="list"
                       ref='notebookList'
-                      selectedItemStyle={{backgroundColor: "#C8C8C8"}}
+                      selectedItemStyle={{backgroundColor: colors.lightBlue100}}
                       subheader={<div>
                                     <div className="inline">NoteBooks</div>
                                     <IconButton
                                         onTouchTap={this.addNotebookTapped}
                                         tooltip="Add New Notebook"
+                                        touch={true}
                                         style={{'zIndex': 1000}}
                                         className="right inline">
                                         <AddCircleOutline

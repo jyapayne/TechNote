@@ -39,7 +39,7 @@ body, html{
 #entry-selector{
     border-right: solid 1px #d9d9d9;
     min-width: 250px;
-    max-width: 390px !important;
+    max-width: 350px !important;
 }
 #library-nav{
     border-right: solid 1px #d9d9d9;
@@ -51,5 +51,6 @@ body, html{
     padding-bottom: 0px !important;
 }
 #notebook-list{
+    width: 100%;
     overflow-y: auto;
 }
