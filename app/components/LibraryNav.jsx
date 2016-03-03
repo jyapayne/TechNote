@@ -35,25 +35,13 @@ String.prototype.trunc = String.prototype.trunc || function(n){
 };
 
 const {
-    AppBar,
-    AppCanvas,
-    FontIcon,
     IconButton,
-    EnhancedButton,
-    NavigationClose,
-    FloatingActionButton,
-    Menu,
     MenuItem,
-    Mixins,
-    RaisedButton,
-    FlatButton,
-    Popover,
     Badge,
     TextField,
-    Dialog,
     Styles,
-    LeftNav,
-    Paper} = mui
+    Paper
+} = mui
 
 const DefaultRawTheme = Styles.LightRawTheme
 
