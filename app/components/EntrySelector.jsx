@@ -7,9 +7,9 @@ import List from 'material-ui/lib/lists/list'
 import ListItem from 'material-ui/lib/lists/list-item'
 import Description from 'material-ui/lib/svg-icons/action/description'
 import Add from 'material-ui/lib/svg-icons/content/add'
-import Search from 'material-ui/lib/svg-icons/action/search'
-import SelectableList from 'SelectableList'
 
+import SearchBar from 'SearchBar'
+import SelectableList from 'SelectableList'
 import Item from 'Item'
 
 import uuid from 'node-uuid'
@@ -23,24 +23,13 @@ import mkdirp from 'mkdirp'
 import jsfile from 'jsonfile'
 import rmdir from 'rimraf'
 
-const {AppBar,
-      AppCanvas,
-      FontIcon,
-      IconButton,
-      EnhancedButton,
-      AutoComplete,
-      NavigationClose,
-      Menu,
-      MenuItem,
-      Mixins,
-      RaisedButton,
-      FlatButton,
-      Dialog,
-      Styles,
-      Tab,
-      Tabs,
-      TextField,
-      Paper} = mui
+const {
+    IconButton,
+    AutoComplete,
+    Styles,
+    TextField,
+    Paper
+} = mui
 
 const colors = Styles.Colors
 
@@ -81,27 +70,20 @@ export default class EntrySelector extends React.Component {
     render(){
         return (
             <Paper id={this.props.id} className={this.props.className+ " noselect"} zDepth={0}>
-                <Paper zDepth={0}>
-                    <Item
-                        id="search-bar"
-                        active={false}
-                        selected={false}
-                        leftIcon={<Search color={colors.grey600}/>}
-                        rightIconButton={<IconButton
-                                            style={{'zIndex': 1000}}
-                                            touch={true}
-                                            onTouchTap={this.addNoteTapped}
-                                            tooltip="Add New Note">
-                                            <Add color={colors.grey600}/>
-                                         </IconButton>}>
-                        <TextField
-                            hintText="Filter by keyword, title or tag."
-                            style={{width: 210}}
-                            onKeyDown={()=>{}}
-                            onEnterKeyDown={()=>{}}
-                        />
-                    </Item>
-                </Paper>
+                <SearchBar
+                    rightIconButton={
+                        <IconButton
+                            style={{'zIndex': 1000}}
+                            touch={true}
+                            onTouchTap={this.addNoteTapped}
+                            tooltip="Add New Note">
+                                <Add color={colors.grey600}/>
+                        </IconButton>}
+                     hintText="Filter by keyword, title or tag."
+                     innerTextFieldWidth={210}
+                     onKeyDown={()=>{}}
+                     onEnterKeyDown={()=>{}}
+                 />
                 <SelectableList
                     id="entry-list"
                     ref="entryList"
