@@ -80,7 +80,7 @@ export default class EntrySelector extends React.Component {
 
     render(){
         return (
-            <Paper id={this.props.id} className={this.props.className} zDepth={0}>
+            <Paper id={this.props.id} className={this.props.className+ " noselect"} zDepth={0}>
                 <Paper zDepth={0}>
                     <Item
                         id="search-bar"

@@ -376,7 +376,6 @@ export default class LibraryNav extends React.Component {
                                     primaryText={notebook.title.trunc(14)}
                                     tooltip={notebook.title}
                                     ref={notebook.title+i}
-                                    className="noselect"
                                     onTouchTap={this.noteBookTapped.bind(this, i)}
                                     leftIcon={
                                             <IconButton
@@ -405,7 +404,7 @@ export default class LibraryNav extends React.Component {
 
     render(){
         return (
-            <div id={this.props.id} className={this.props.className+" leftnav"} open={this.state.open}>
+            <div id={this.props.id} className={this.props.className+" leftnav noselect"} open={this.state.open}>
                 <SelectableList
                     ref='mainList'
                     className="list"
@@ -419,8 +418,7 @@ export default class LibraryNav extends React.Component {
                                     leftIcon={item.icon}
                                     rightIcon={<Badge badgeContent={item.notes} />}
                                     value={i}
-                                    onTouchTap={this.menuItemClicked.bind(this, i)}
-                                    className="noselect"/>;
+                                    onTouchTap={this.menuItemClicked.bind(this, i)}/>;
                         })}
                   </SelectableList>
                   <Divider />
