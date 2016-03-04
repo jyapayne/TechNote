@@ -9,6 +9,7 @@ import mkdirp from 'mkdirp'
 import jsfile from 'jsonfile'
 import rmdir from 'rimraf'
 
+var APP_NAME = 'TechNote'
 
 export function getAppDataPath(){
     return path.datadir(APP_NAME)

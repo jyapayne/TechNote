@@ -11,6 +11,8 @@ import { connect } from 'react-redux'
 import LibraryNav from 'LibraryNav'
 import EntrySelector from 'EntrySelector'
 
+import * as utils from 'utils'
+
 const {
     Popover,
     Menu,
@@ -43,6 +45,10 @@ class App extends React.Component {
             entries: [],
         }
     }
+
+    static defaultProps = {
+        name: utils.APP_NAME
+    };
 
     static get childContextTypes(){
         return {muiTheme: React.PropTypes.object}
@@ -95,7 +101,10 @@ class App extends React.Component {
                     className="left inline fill-height"
                     {...contextMenuActions}
                 />
-                <EntrySelector id="entry-selector" className="left inline fill-height" />
+                <EntrySelector
+                    id="entry-selector"
+                    className="left inline fill-height"
+                />
 
             </div>
         )
