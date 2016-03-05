@@ -192,7 +192,7 @@ export default class LibraryNav extends React.Component {
         var nbUuid = uuid.v4().toUpperCase()
         var nbPath = utils.getNotebookPathFromUUID(nbUuid)
 
-        var nb = {
+        var notebook = {
             'state': 'editing',
             'title': '',
             'uuid': nbUuid,
@@ -201,20 +201,17 @@ export default class LibraryNav extends React.Component {
         }
 
         mkdirp(nbPath, (err) => {
-            if (callback){
-                callback(nb, err)
-            }
             if(err){
                 console.log('There was an error creating the directory '+notePath)
                 console.log(err)
             }
             else{
-                this.createNotebookMeta(notebook)
+                this.createNotebookMeta(notebook, callback)
             }
         })
     };
 
-    createNotebookMeta = (notebook) => {
+    createNotebookMeta = (notebook, callback) => {
         var notePath = utils.getNotebookPath(notebook)
         var meta = {
             'name': notebook.title,
@@ -225,6 +222,18 @@ export default class LibraryNav extends React.Component {
             if(err){
                 console.log(err)
             }
+
+            var nbs = this.state.notebooks
+            nbs.splice(0, 0, notebook)
+
+            this.setState({notebooks: nbs}, () => {
+                if(this.refs['textField0']){
+                    this.refs['textField0'].focus()
+                }
+                if(callback){
+                    callback(notebook, err)
+                }
+            })
         })
 
     };
@@ -249,13 +258,9 @@ export default class LibraryNav extends React.Component {
         }
     };
 
-    addNotebookTapped = () => {
-        this.createNewNotebook((nb, err) => {
-            var nbs = this.state.notebooks
-            nbs.splice(0, 0, nb)
-            this.setState({notebooks: nbs}, () => {
-                this.refs['textField0'].focus()
-            })
+    addNotebookTapped = (callback) => {
+        this.createNewNotebook(callback, (nb, err) => {
+
         })
     };
 
@@ -284,13 +289,21 @@ export default class LibraryNav extends React.Component {
         this.props.closeContextMenu()
     }
 
-    deleteTapped = (i) => {
+    deleteTapped = (i, callback) => {
         var nbs = this.state.notebooks
         var nb = nbs.splice(i, 1)[0]
 
-        rmdir(nb.path, (err)=>{if(err){console.log(err)}})
+        rmdir(nb.path, (err)=>{
+            if(err){
+                console.log(err)
+            }
+            this.setState({notebooks: nbs}, ()=>{
+                if(callback){
+                    callback(nb, err)
+                }
+            })
+        })
 
-        this.setState({notebooks: nbs})
         this.props.closeContextMenu()
     }
 
@@ -402,6 +415,7 @@ export default class LibraryNav extends React.Component {
                         {this.state.navItems.map((item, i) => {
                             return <ListItem
                                     primaryText={item.name}
+                                    ref={item.name}
                                     key={i}
                                     leftIcon={item.icon}
                                     rightIcon={<Badge badgeContent={item.notes} />}
@@ -419,6 +433,7 @@ export default class LibraryNav extends React.Component {
                                     <div className="inline">NoteBooks</div>
                                     <IconButton
                                         onTouchTap={this.addNotebookTapped}
+                                        ref="addNotebookBtn"
                                         tooltip="Add New Notebook"
                                         touch={true}
                                         style={{'zIndex': 1000}}
@@ -433,4 +448,8 @@ export default class LibraryNav extends React.Component {
         )
     }
 }
+
+LibraryNav.defaultProps = {
+    closeContextMenu: () => {}
+};
 
