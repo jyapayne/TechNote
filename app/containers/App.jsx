@@ -1,7 +1,6 @@
 import React from 'react'
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
 import Styles from 'material-ui/lib/styles'
-import Rethink from 'rethinkdbdash'
 import mui from 'material-ui'
 import * as ContextMenuActions from '../actions'
 
@@ -20,27 +19,9 @@ const {
 
 const DefaultRawTheme = Styles.LightRawTheme
 
-let r = Rethink({
-        db: 'technote',
-        servers: [
-            {host: '162.243.255.144',
-             port: 28015}
-        ]})
-
-function createTables(){
-    r.tableCreate('notes').run()
-        .then(function(){
-            r.table('notes').indexCreate('account_id').run()
-        })
-        .error(function(){})
-
-    r.tableCreate('accounts').run().error(function(){})
-}
-
 class App extends React.Component {
     constructor(props, context){
         super(props, context)
-        createTables()
         this.state = {
             entries: [],
         }
