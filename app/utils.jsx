@@ -51,3 +51,8 @@ export function loadNotebookByName(nameOrUUID){
 export function getNotebookPathFromUUID(uuid){
     return getNotebookPath({uuid: uuid})
 }
+
+export function isFunction(functionToCheck) {
+    var getType = {}
+    return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]'
+}

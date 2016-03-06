@@ -12,6 +12,6 @@ describe('EntrySelector', () => {
         var entrySelector = TestUtils.renderIntoDocument(
             <EntrySelector id="entry-selector" className="left inline fill-height" />
         )
-        expect(entrySelector.state.entries.length).toEqual(0)
+        expect(entrySelector.state.notes.length).toEqual(0)
     })
 })

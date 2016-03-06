@@ -39,7 +39,7 @@ export default class EntrySelector extends React.Component {
 
     constructor(props){
         super(props)
-        this.state = {entries: []}
+        this.state = {notes: []}
     }
 
     static get childContextTypes(){
@@ -57,14 +57,7 @@ export default class EntrySelector extends React.Component {
     }
     
     addNoteTapped = () => {
-        this.createNewNote((note) => {
-            var notes = this.state.notes
-            notes.splice(0, 0, note)
-            this.setState({notes: notes}, () => {
-                //this.refs['textField0'].focus()
-            })
-        })
-
+        console.log(this.props.navigation)
     };
 
     render(){

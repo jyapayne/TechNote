@@ -1,0 +1,1 @@
+export const UPDATE_SELECTION = 'UPDATE_SELECTION'

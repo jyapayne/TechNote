@@ -3,6 +3,7 @@ import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
 import Styles from 'material-ui/lib/styles'
 import mui from 'material-ui'
 import * as ContextMenuActions from '../actions/contextMenu'
+import * as NavigationActions from '../actions/navigation'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -51,7 +52,13 @@ class App extends React.Component {
 
     render() {
     
-        const { contextMenu, contextMenuActions } = this.props
+        const {
+            contextMenu,
+            contextMenuActions,
+            navigation,
+            navigationActions
+        } = this.props
+
         return (
             <div className="fill-height">
                 <div style={{position: 'absolute',
@@ -77,11 +84,15 @@ class App extends React.Component {
                     ref="libraryNav"
                     entriesTapped={this.entriesTapped}
                     className="left inline fill-height"
+                    navigation={navigation}
+                    {...navigationActions}
                     {...contextMenuActions}
                 />
                 <EntrySelector
                     id="entry-selector"
                     className="left inline fill-height"
+                    navigation={navigation}
+                    {...navigationActions}
                 />
 
             </div>
@@ -91,18 +102,22 @@ class App extends React.Component {
 
 App.propTypes = {
     contextMenu: React.PropTypes.object.isRequired,
-    contextMenuActions: React.PropTypes.object.isRequired
+    contextMenuActions: React.PropTypes.object.isRequired,
+    navigation: React.PropTypes.object.isRequired,
+    navigationActions: React.PropTypes.object.isRequired
 }
 
 function mapStateToProps(state) {
     return {
-        contextMenu: state.contextMenu
+        contextMenu: state.contextMenu,
+        navigation: state.navigation
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        contextMenuActions: bindActionCreators(ContextMenuActions, dispatch)
+        contextMenuActions: bindActionCreators(ContextMenuActions, dispatch),
+        navigationActions: bindActionCreators(NavigationActions, dispatch)
     }
 }
 

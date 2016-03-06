@@ -1,13 +1,12 @@
 import { UPDATE_CONTEXT_MENU, OPEN_CONTEXT_MENU, CLOSE_CONTEXT_MENU } from '../constants/contextMenu'
 
 
-const initialState =
-  {
+const initialState = {
     opened: false,
     x: 0,
     y: 0,
     items: []
-  }
+}
 
 export default function contextMenu(state = initialState, action){
     switch (action.type) {
