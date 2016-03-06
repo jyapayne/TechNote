@@ -2,7 +2,7 @@ import React from 'react'
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
 import Styles from 'material-ui/lib/styles'
 import mui from 'material-ui'
-import * as ContextMenuActions from '../actions'
+import * as ContextMenuActions from '../actions/contextMenu'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -15,7 +15,8 @@ import * as utils from 'utils'
 const {
     Popover,
     Menu,
-    MenuItem} = mui
+    MenuItem
+} = mui
 
 const DefaultRawTheme = Styles.LightRawTheme
 

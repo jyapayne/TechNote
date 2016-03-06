@@ -1,4 +1,4 @@
-import { UPDATE_CONTEXT_MENU, OPEN_CONTEXT_MENU, CLOSE_CONTEXT_MENU } from '../constants'
+import { UPDATE_CONTEXT_MENU, OPEN_CONTEXT_MENU, CLOSE_CONTEXT_MENU } from '../constants/contextMenu'
 
 
 const initialState =

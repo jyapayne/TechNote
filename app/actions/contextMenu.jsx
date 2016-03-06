@@ -1,4 +1,4 @@
-import * as types from '../constants'
+import * as types from '../constants/contextMenu'
 
 export function updateContextMenu(items) {
       return { type: types.UPDATE_CONTEXT_MENU, items }
