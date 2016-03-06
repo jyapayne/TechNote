@@ -43,10 +43,6 @@ class App extends React.Component {
     }
 
     entriesTapped = () => {
-        r.table('notes').getAll('jyapayne@gmail.com', {index: 'account_id'}).run().then(
-            function(notes){
-            }
-        )
     };
 
   	handleRequestClose = () => {
