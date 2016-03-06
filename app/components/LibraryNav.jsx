@@ -206,7 +206,15 @@ export default class LibraryNav extends React.Component {
                 console.log(err)
             }
             else{
-                this.createNotebookMeta(notebook, callback)
+                var nbs = this.state.notebooks
+                nbs.splice(0, 0, notebook)
+
+                this.setState({notebooks: nbs}, () => {
+                    if(this.refs['textField0']){
+                        this.refs['textField0'].focus()
+                    }
+                    this.createNotebookMeta(notebook, callback)
+                })
             }
         })
     };
@@ -222,18 +230,9 @@ export default class LibraryNav extends React.Component {
             if(err){
                 console.log(err)
             }
-
-            var nbs = this.state.notebooks
-            nbs.splice(0, 0, notebook)
-
-            this.setState({notebooks: nbs}, () => {
-                if(this.refs['textField0']){
-                    this.refs['textField0'].focus()
-                }
-                if(callback){
-                    callback(notebook, err)
-                }
-            })
+            if(callback){
+                callback(notebook, err)
+            }
         })
 
     };
@@ -259,9 +258,7 @@ export default class LibraryNav extends React.Component {
     };
 
     addNotebookTapped = (callback) => {
-        this.createNewNotebook(callback, (nb, err) => {
-
-        })
+        this.createNewNotebook(callback)
     };
 
     newNotebookTyped = (i) => {
