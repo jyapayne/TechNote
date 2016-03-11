@@ -23,7 +23,6 @@ import path from 'path-extra'
 import * as utils from 'utils'
 import glob from 'glob'
 
-import fs from 'fs'
 import mkdirp from 'mkdirp'
 import jsfile from 'jsonfile'
 import rmdir from 'rimraf'
@@ -51,49 +50,51 @@ export default class LibraryNav extends React.Component {
         super(props, context)
         this.state = {
             open: true,
-            navItems: [
-                {
-                    'name': 'Entries',
-                    'isNotebook': true,
-                    'icon': <img src="images/note.svg"/>,
-                    'clicked': this.props.entriesTapped || this.entriesTapped
-                },
-                {
-                    'name': 'Starred',
-                    'notes': 0,
-                    'icon': <ActionGrade color={colors.amberA700}/>,
-                    'clicked': this.props.starredTapped || this.starredTapped
-                },
-                {
-                    'name': 'Recents',
-                    'notes': 0,
-                    'icon': <History color="#4BAE4E"/>,
-                    'clicked': this.props.recentsTapped || this.recentsTapped
-                },
-                {
-                    'name': 'Trash',
-                    'isNotebook': true,
-                    'icon': <Delete color={colors.grey500}/>,
-                    'clicked': this.props.trashTapped || this.trashTapped
-                },
-                {
-                    'name': 'All Notes',
-                    'notes': 0,
-                    'glob': '*.qvnotebook/*.qvnote',
-                    'icon': <Folder color="#FFCC5F" />,
-                    'clicked': this.props.allNotesTapped || this.allNotesTapped
-                },
-
-            ],
-            notebooks: [
-            ]
         }
+        this.navItems = [
+            {
+                'name': 'Entries',
+                'isNotebook': true,
+                'icon': <img src="images/note.svg"/>,
+                'clicked': this.props.entriesTapped || this.entriesTapped
+            },
+            {
+                'name': 'Starred',
+                'notes': 0,
+                'icon': <ActionGrade color={colors.amberA700}/>,
+                'clicked': this.props.starredTapped || this.starredTapped
+            },
+            {
+                'name': 'Recents',
+                'notes': 0,
+                'icon': <History color="#4BAE4E"/>,
+                'clicked': this.props.recentsTapped || this.recentsTapped
+            },
+            {
+                'name': 'Trash',
+                'isNotebook': true,
+                'icon': <Delete color={colors.grey500}/>,
+                'clicked': this.props.trashTapped || this.trashTapped
+            },
+            {
+                'name': 'All Notes',
+                'notes': 0,
+                'glob': '*.qvnotebook/*.qvnote',
+                'icon': <Folder color="#FFCC5F" />,
+                'clicked': this.props.allNotesTapped || this.allNotesTapped
+            }
+
+        ]
+
         this.loadDefaultNotebooks()
         this.getNotebooks()
+
+        const { store } = this.context
+        store.subscribe(this.stateChanged)
     }
 
     loadDefaultNotebooks = () => {
-        var notebooks = this.state.navItems
+        var notebooks = this.navItems
         for(var i=0; i<notebooks.length; i++){
             var nb = notebooks[i]
             if(nb.isNotebook){
@@ -120,6 +121,10 @@ export default class LibraryNav extends React.Component {
                 nb.uuid = nb.name
                 nb.notes = notes.length
             }
+            if(i==0){
+                this.props.updateSelection(nb)
+            }
+            this.props.addMenuItem(nb)
         }
     };
 
@@ -144,27 +149,9 @@ export default class LibraryNav extends React.Component {
                 nb.state = 'displaying'
             }
 
-            this.state.notebooks.push(nb)
+            this.props.addNotebook(nb)
         }
-        this.sortNotebooks(true)
-    };
-
-    compareNotebooks = (a, b) => {
-        let atitle = a.title.toLowerCase()
-        let btitle = b.title.toLowerCase()
-
-        if(atitle > btitle)
-            return 1  
-        if(atitle < btitle)
-            return -1
-        return 0
-    };
-
-    sortNotebooks = (dontSet, func) => {
-        this.state.notebooks.sort(this.compareNotebooks)
-        if (!dontSet){
-            this.setState({notebooks: this.state.notebooks}, func)
-        }
+        this.props.sortNotebooks(utils.compareNotebooks)
     };
 
     static get childContextTypes(){
@@ -203,14 +190,17 @@ export default class LibraryNav extends React.Component {
 
     scrollToRenamedNotebook = (original) => {
         var newIndex = 0
-        for (var j = 0; j < this.state.notebooks.length; j++){
-            var n = this.state.notebooks[j]
+        for (var j = 0; j < this.props.navigation.notebooks.length; j++){
+            var n = this.props.navigation.notebooks[j]
             if (n == original){
                 newIndex = j
                 this.refs.notebookList.setIndex(j, () => {
                     var nbitem = $(ReactDOM.findDOMNode(this.refs[n.title+newIndex]))
                     var cont = $('#notebook-list')
-                    var newPos = nbitem.offset().top - cont.offset().top + cont.scrollTop() - cont.height()/2;
+                    var newPos = 0
+                    if(typeof nbitem.offset() != 'undefined'){
+                        newPos = nbitem.offset().top - cont.offset().top + cont.scrollTop() - cont.height()/2;
+                    }
                     $('#notebook-list').animate({
                         scrollTop: newPos
                     })
@@ -243,12 +233,8 @@ export default class LibraryNav extends React.Component {
                 console.log(err)
             }
             else{
-                var nbs = this.state.notebooks
-                nbs.splice(0, 0, notebook)
-
-                this.setState({notebooks: nbs}, () => {
-                    this.createNotebookMeta(notebook, callback)
-                })
+                this.props.addNotebook(notebook)
+                this.createNotebookMeta(notebook, callback)
             }
         })
 
@@ -288,22 +274,24 @@ export default class LibraryNav extends React.Component {
     };
 
     newNotebookUnfocus = (i) => {
-        var nb = this.state.notebooks[i]
+        var nb = this.props.navigation.notebooks[i]
 
         var tf = this.refs["textField"+i]
         var notebookName = tf.getValue()
         if (notebookName){
+            this.refs.mainList.setIndex(-1)
             nb.title = notebookName
             nb.state = 'displaying'
-            this.setState({notebooks: this.state.notebooks})
-            this.sortNotebooks(false, ()=>{
-                this.scrollToRenamedNotebook(nb)
+            this.props.updateNotebook(nb, i, () => {
+                this.props.sortNotebooks(this.compareNotebooks, ()=>{
+                    this.scrollToRenamedNotebook(nb)
+                })
             })
             this.createNotebookMeta(nb)
         }
         else if(nb.title){
             nb.state = 'displaying'
-            this.setState({notebooks: this.state.notebooks})
+            this.props.updateNotebook(nb, i)
         }
     };
 
@@ -325,7 +313,7 @@ export default class LibraryNav extends React.Component {
 
     menuItemClicked = (i, ev) => {
         this.refs.notebookList.setIndex(-1)
-        var item = this.state.navItems[i]
+        var item = this.props.navigation.menuItems[i]
         var type = 'leftClick'
         var nativeEvent = ev.nativeEvent
         if(nativeEvent.button == 2){
@@ -335,6 +323,7 @@ export default class LibraryNav extends React.Component {
 
         if (item.isNotebook){
             var notebook = utils.loadNotebookByName(item.name)
+            notebook = utils.updateObject(item, notebook)
             this.props.updateSelection(notebook)
         }
         else if(item.glob){
@@ -345,23 +334,23 @@ export default class LibraryNav extends React.Component {
     };
 
     renameTapped = (i) => {
-        var nbs = this.state.notebooks
+        var nbs = this.props.navigation.notebooks
         nbs[i].state = 'editing'
-        this.setState({notebooks: nbs}, () => {
+        this.props.updateNotebook(nbs[i], i, () => {
             this.refs['textField'+i].focus()
         })
         this.props.closeContextMenu()
     }
 
     deleteTapped = (i, callback) => {
-        var nbs = this.state.notebooks
-        var nb = nbs.splice(i, 1)[0]
+        var nbs = this.props.navigation.notebooks
+        var nb = nbs.slice(i, 1)[0]
 
         rmdir(nb.path, (err)=>{
             if(err){
                 console.log(err)
             }
-            this.setState({notebooks: nbs}, ()=>{
+            this.props.removeNotebook(i, () =>{
                 if(utils.isFunction(callback)){
                     callback(nb, err)
                 }
@@ -399,7 +388,7 @@ export default class LibraryNav extends React.Component {
             this.props.openContextMenu(x, y)
         }
         else{
-            this.props.updateSelection(this.state.notebooks[i])
+            this.props.updateSelection(this.props.navigation.notebooks[i])
         }
         this.refs.mainList.setIndex(-1)
 
@@ -412,7 +401,7 @@ export default class LibraryNav extends React.Component {
     notebookList = () => {
         return (<div id="notebook-list">
 
-                    {this.state.notebooks.map((notebook, i) =>{
+                    {this.props.navigation.notebooks.map((notebook, i) =>{
                         var l = null
                         if (notebook.state == 'editing'){
                             l = <ListItem
@@ -448,6 +437,8 @@ export default class LibraryNav extends React.Component {
                                     leftIcon={
                                             <IconButton
                                                 onClick={this.preventEventProp}
+                                                tooltip={notebook.title}
+                                                touch={true}
                                                 onTouchTap={this.notebookIconTapped.bind(this, i)}
                                                 style={{padding: 0}}
                                             >
@@ -470,16 +461,26 @@ export default class LibraryNav extends React.Component {
         ev.stopPropagation()
     };
 
+    stateChanged = () => {
+        const { store } = this.context
+        const state = store.getState()
+        if(utils.isFunction(state.navigation.callback)){
+            state.navigation.callback(state)
+        }
+    };
+
     render(){
+
         return (
             <div id={this.props.id} className={this.props.className+" leftnav noselect"} open={this.state.open}>
                 <SelectableList
                     ref='mainList'
                     className="list"
+                    initialIndex={0}
                     id="main-nav"
                     selectedItemStyle={{backgroundColor: colors.lightBlue100}}
                     subheader="Library">
-                        {this.state.navItems.map((item, i) => {
+                        {this.props.navigation.menuItems.map((item, i) => {
                             return <ListItem
                                     primaryText={item.name}
                                     ref={item.name}
@@ -514,6 +515,10 @@ export default class LibraryNav extends React.Component {
             </div>
         )
     }
+}
+
+LibraryNav.contextTypes = {
+    store: React.PropTypes.object
 }
 
 LibraryNav.defaultProps = {
