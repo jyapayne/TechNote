@@ -25,10 +25,17 @@
         function resize()
         {
             var heights = window.innerHeight;
+
             $("#main").height(heights+"px");
+
             var h = $('#main-nav').outerHeight(true);
             var subheaderHeight = $('#nblist > div:first-child').outerHeight(true);
+
             $('#notebook-list').height(heights-h-subheaderHeight);
+
+            var searchBarHeight = $('#entry-search-bar').outerHeight(true);
+
+            $('#entry-list').height(heights-searchBarHeight);
         }
         resize();
         $(window).resize(function() {
