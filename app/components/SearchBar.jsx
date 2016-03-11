@@ -40,7 +40,11 @@ export default class SearchBar extends React.Component {
 
     render(){
         return (
-            <Paper id={this.props.id} className={this.props.className+ " noselect"} zDepth={0}>
+            <Paper
+                id={this.props.id}
+                className={this.props.className+ " noselect"}
+                zDepth={0}
+            >
                 <Item
                     id="search-bar"
                     active={false}
