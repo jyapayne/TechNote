@@ -41,6 +41,21 @@ body, html{
     min-width: 250px;
     max-width: 350px !important;
 }
+.note-date{
+    padding: 12px;
+    padding-right: 0px;
+}
+.tag-icon{
+    padding-left: 12px !important;
+    padding-right: 5px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    width: 45px !important;
+}
+.tag-list{
+    padding: 12px 0px;
+    max-width: 172px;
+}
 #library-nav{
     border-right: solid 1px #d9d9d9;
     min-width: 250px !important;
@@ -49,6 +64,9 @@ body, html{
 }
 #nblist{
     padding-bottom: 0px !important;
+}
+#entry-list{
+    overflow-y: auto;
 }
 #notebook-list{
     width: 100%;
