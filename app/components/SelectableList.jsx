@@ -9,7 +9,9 @@ let SelectableList = SelectableContainerEnhance(List)
 function wrapState(ComposedComponent) {
   const StateWrapper = React.createClass({
     getInitialState() {
-      return {selectedIndex: -1};
+      if(typeof this.props.initialIndex == 'undefined')
+        return {selectedIndex: -1};
+      return {selectedIndex: this.props.initialIndex};
     },
     setIndex(i, func){
       this.setState({
