@@ -93,11 +93,16 @@ class App extends React.Component {
                     className="left inline fill-height"
                     navigation={navigation}
                     {...navigationActions}
+                    {...contextMenuActions}
                 />
 
             </div>
         )
     }
+}
+
+App.contextTypes = {
+    store: React.PropTypes.object
 }
 
 App.propTypes = {
