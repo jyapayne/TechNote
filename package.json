@@ -22,10 +22,8 @@
   "client_certificate": "",
   "scripts": {
     "test": "jest",
-    "dev": "webpack-dev-server --progress --colors --port 8090",
-    "serve": "./node_modules/.bin/http-server -p 8080",
-    "start": "npm run serve | npm run dev",
-    "webpack": "webpack --progress --colors --watch"
+    "start": "webpack && electron main.js",
+    "webpack-watch": "webpack --progress --colors --watch"
   },
   "single-instance": true,
   "app_name": "Electrify",
