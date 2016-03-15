@@ -50,12 +50,18 @@ export default class EntrySelector extends React.Component {
         this.loadNotes()
         const { store } = this.context
         store.subscribe(this.stateChanged)
+        this.oldSelection = this.props.navigation.selection
     }
 
     stateChanged = () => {
         const { store } = this.context
         var selection = store.getState().navigation.selection
-        this.reloadNotes(selection)
+        var selectionDiffers = utils.differs(this.oldSelection, selection)
+
+        if(selectionDiffers){
+            this.reloadNotes(selection)
+            this.oldSelection = selection
+        }
     };
 
     static get childContextTypes(){
@@ -70,20 +76,22 @@ export default class EntrySelector extends React.Component {
 
     loadNotes = () => {
         var notebook = this.props.navigation.selection
-        var notes = utils.loadNotes(notebook)
-        this.state.notes = notes
+        if(!utils.isEmpty(notebook)){
+            var notes = utils.loadNotes(notebook)
+            notes.sort(utils.compareNotes())
+            this.state.notes = notes
+        }
     }
 
     reloadNotes = (selection) => {
-        var notebook = selection || this.props.navigation.selection
-
-        var notes = utils.loadNotes(notebook)
-        this.setState({notes: notes})
+        this.setState({notes: []}, ()=>{
+            var notebook = selection || this.props.navigation.selection
+            utils.loadNotesAsync(notebook, (notes) => {
+                notes.sort(utils.compareNotes())
+                this.setState({notes: notes})
+            })
+        })
     };
-
-    blank(){
-    
-    }
 
     createNotePath = (note, callback) => {
         mkdirp(path.join(note.path, 'resources'), (err) => {
