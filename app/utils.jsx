@@ -222,3 +222,50 @@ export function compareNotebooks(a, b) {
         return -1
     return 0
 }
+
+export function dateDesc(a, b){
+    return b.created_at - a.created_at
+}
+
+export function dateAsc(a, b){
+    return a.created_at - b.created_at
+}
+
+export function titleAsc(a, b){
+    let atitle = a.title.toLowerCase()
+    let btitle = b.title.toLowerCase()
+
+    if(atitle > btitle)
+        return 1
+    if(atitle < btitle)
+        return -1
+    return 0
+}
+
+export function titleDesc(a, b){
+    let atitle = a.title.toLowerCase()
+    let btitle = b.title.toLowerCase()
+
+    if(atitle < btitle)
+        return 1
+    if(atitle > btitle)
+        return -1
+    return 0
+}
+
+const defaultOrder = [
+    dateDesc,
+    titleAsc
+]
+
+export function compareNotes(ordering = defaultOrder) {
+    return (a, b) => {
+        for(var i=0; i<ordering.length; i++){
+            var order = ordering[i]
+            var res = order(a, b)
+            if(res != 0){
+                return res
+            }
+        }
+    }
+}
