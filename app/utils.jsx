@@ -33,6 +33,34 @@ export function createNotebookDir(notebookNameOrUUID){
     mkdirp.sync(notebookPath)
 }
 
+export function isEmpty(obj){
+    return Object.keys(obj).length === 0 && JSON.stringify(obj) === JSON.stringify({})
+}
+
+export function differs(obj, otherobj){
+    var objKeys = Object.keys(obj)
+    var otherKeys = Object.keys(otherobj)
+    objKeys.sort()
+    otherKeys.sort()
+
+    if(objKeys.length != otherKeys.length){
+        return true
+    }
+    for(var i=0; i<objKeys.length; i++){
+        var objField = objKeys[i]
+        var otherField = otherKeys[i]
+        if(objField != otherField){
+            return true
+        }
+        var objVal = obj[objField]
+        var otherVal = otherobj[otherField]
+        if (objVal != otherVal){
+            return true
+        }
+    }
+    return false
+}
+
 export function loadNote(notePath){
     var metaPath = path.join(notePath, 'meta.json')
     var contentPath = path.join(notePath, 'content.json')
