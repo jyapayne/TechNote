@@ -200,10 +200,14 @@ export default class LibraryNav extends React.Component {
 
     addNotebookTapped = (callback) => {
         if(!utils.isFunction(callback)){
-            callback = () => {
+            callback = (notebook) => {
                 if(this.refs['textField0']){
                     this.refs['textField0'].focus()
                 }
+
+                this.refs.mainList.setIndex(-1)
+                this.refs.notebookList.setIndex(0)
+                this.props.updateSelection(notebook)
             }
         }
 
@@ -235,7 +239,12 @@ export default class LibraryNav extends React.Component {
             this.props.updateSelection(item)
         }
 
-        item.clicked(i, item, type, ev)
+        // Process any callbacks attached to the menu
+        var clickedCallbacks = this.props.navigation.clickedCallbacks
+        for(var i=0; i<clickedCallbacks.length; i++){
+            var callback = clickedCallbacks[i]
+            callback(i, item, type, ev)
+        }
     };
 
     renameTapped = (i) => {
@@ -249,7 +258,7 @@ export default class LibraryNav extends React.Component {
 
     deleteTapped = (i, callback) => {
         var nbs = this.props.navigation.notebooks
-        var nb = nbs.slice(i, 1)[0]
+        var nb = nbs.slice(i, i+1)[0]
 
         rmdir(nb.path, (err)=>{
             if(err){
@@ -258,6 +267,19 @@ export default class LibraryNav extends React.Component {
             this.props.removeNotebook(i, () =>{
                 if(utils.isFunction(callback)){
                     callback(nb, err)
+                }
+                var newNbs = this.props.navigation.notebooks
+                var selection = null
+
+                if(newNbs.length > i){
+                    selection = newNbs[i]
+                }
+                else if(newNbs.length > 0){
+                    selection = newNbs[newNbs.length-1]
+                }
+
+                if(selection){
+                    this.props.updateSelection(selection)
                 }
             })
         })
@@ -289,8 +311,9 @@ export default class LibraryNav extends React.Component {
             var x = nativeEvent.pageX
             var y = nativeEvent.pageY
 
-            this.props.updateContextMenu(this.contextMenuItems(i))
             this.props.openContextMenu(x, y)
+            this.props.updateContextMenu(this.contextMenuItems(i))
+            this.props.updateSelection(this.props.navigation.notebooks[i])
         }
         else{
             this.props.updateSelection(this.props.navigation.notebooks[i])
