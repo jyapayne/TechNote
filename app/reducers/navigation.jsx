@@ -12,25 +12,123 @@ import {
     REFRESH
 } from '../constants/navigation'
 
+import React from 'react'
+import Styles from 'material-ui/lib/styles'
+import ActionGrade from 'material-ui/lib/svg-icons/action/grade'
+import History from 'material-ui/lib/svg-icons/action/history'
+import Folder from 'material-ui/lib/svg-icons/file/folder'
+import Delete from 'material-ui/lib/svg-icons/action/delete'
+
 import * as utils from '../utils'
 import glob from 'glob'
 import jsfile from 'jsonfile'
 import path from 'path-extra'
+import mkdirp from 'mkdirp'
 
-// Load default selection
-utils.createNotebookDir('Entries')
+const Colors = Styles.Colors
 
-const initialState =
-{
-    selection: utils.loadNotebookByName('Entries'),
-    selectionIndex: 0,
-    selectionType: MENU_TYPE,
-    menuItems: [],
-    notebooks: [],
-    callback: () => {}
-}
+const initialState = getInitialState()
 
 var emptyFunc = () => {}
+
+function initDefaultNotebookPath(notebook){
+    var nbPath = utils.getNotebookPath(notebook)
+    var dir = mkdirp.sync(nbPath)
+
+    var notePath = utils.getNotebookPath(notebook)
+
+    var meta = {
+        'name': notebook.title,
+        'uuid': notebook.uuid
+    }
+
+    var metaPath = path.join(nbPath, 'meta.json')
+    jsfile.writeFileSync(metaPath, meta)
+
+}
+
+function getInitialState(){
+    var menuItems = [
+        {
+            'name': 'Entries',
+            'isNotebook': true,
+            'icon': <img src="images/note.svg"/>,
+        },
+        {
+            'name': 'Starred',
+            'notes': 0,
+            'icon': <ActionGrade color={Colors.amberA700}/>,
+        },
+        {
+            'name': 'Recents',
+            'notes': 0,
+            'icon': <History color="#4BAE4E"/>,
+            'glob': '*.qvnotebook/*.qvnote',
+            'filter': (notes) => {
+                // Get the 10 most recent notes
+                notes.sort(utils.compareNotes())
+                return notes.slice(0, 10)
+            }
+        },
+        {
+            'name': 'Trash',
+            'isNotebook': true,
+            'icon': <Delete color={Colors.grey500}/>,
+        },
+        {
+            'name': 'All Notes',
+            'notes': 0,
+            'glob': '*.qvnotebook/*.qvnote',
+            'icon': <Folder color="#FFCC5F" />,
+        }
+
+    ]
+
+    for(var i=0; i<menuItems.length; i++){
+        var menuItem = menuItems[i]
+        if(menuItem.isNotebook){
+            var temp = {
+                title: menuItem.name,
+                uuid: menuItem.name,
+                notes: 0
+            }
+
+            initDefaultNotebookPath(temp)
+
+            var loaded = utils.loadNotebookByName(menuItem.name)
+
+            menuItem.title = loaded.title
+            menuItem.uuid = loaded.uuid
+            menuItem.path = loaded.path
+            menuItem.notes = loaded.notes
+        }
+        else if(menuItem.glob){
+            var dataPath = utils.getAppDataPath()
+            var notes = glob.sync(path.join(dataPath, menuItem.glob))
+
+            if(menuItem.filter){
+                notes = menuItem.filter(notes)
+            }
+
+            menuItem.title = menuItem.name
+            menuItem.uuid = menuItem.name
+            menuItem.notes = notes.length
+        }
+    }
+
+    const state = {
+        selection: menuItems[0],
+        selectionIndex: 0,
+        selectionType: MENU_TYPE,
+        clickedCallbacks: [],
+        menuItems: menuItems,
+        notebooks: [],
+        callback: () => {}
+    }
+
+    return state
+}
+
 
 function findIndexGeneric(array, notebook, type){
     for(var i=0; i<array.length; i++){
