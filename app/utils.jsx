@@ -80,6 +80,62 @@ export function loadNote(notePath){
     return note
 }
 
+export function loadNoteAsync(notePath, callback){
+    var metaPath = path.join(notePath, 'meta.json')
+    var contentPath = path.join(notePath, 'content.json')
+
+    var meta = jsfile.readFileSync(metaPath)
+    var content = jsfile.readFileSync(contentPath)
+
+    jsfile.readFile(metaPath, (err, meta) => {
+        jsfile.readFile(contentPath, (err, content) => {
+            if(isFunction(callback)){
+                var note = meta
+
+                note.summary = ''
+                note.path = notePath
+
+                if(content.cells.length > 0){
+                    note.summary = content.cells[0].data
+                }
+                callback(note)
+            }
+        })
+    })
+}
+
+export function loadNotesAsync(notebook, callback){
+    var notebookPath = getNotebookPath(notebook)
+    var dataPath = getAppDataPath()
+    var noteGlob = ''
+
+    if(notebook.glob){
+        noteGlob = path.join(dataPath, notebook.glob)
+    }
+    else{
+        noteGlob = path.join(notebookPath, '*.qvnote')
+    }
+    var notes = []
+
+    glob(noteGlob, (err, notePaths) => {
+        for(var i=0; i<notePaths.length; i++){
+            var notePath = notePaths[i]
+            loadNoteAsync(notePath, (note) => {
+                note.notebook = notebook
+                notes.push(note)
+                if (notes.length == notePaths.length){
+                    if(isFunction(callback)){
+                        if (notebook.filter){
+                            notes = notebook.filter(notes)
+                        }
+                        callback(notes)
+                    }
+                }
+            })
+        }
+    })
+}
+
 export function loadNotes(notebook){
     var notebookPath = getNotebookPath(notebook)
     var dataPath = getAppDataPath()
@@ -101,6 +157,10 @@ export function loadNotes(notebook){
         var note = loadNote(notePath)
         note.notebook = notebook
         notes.push(note)
+    }
+
+    if(notebook.filter){
+        notes = notebook.filter(notes)
     }
 
     return notes
