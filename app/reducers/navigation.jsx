@@ -163,28 +163,32 @@ function findIndex(state, notebook){
 function refreshMenuItems(state){
     var menuItems = state.menuItems
     for(var i=0; i<menuItems.length; i++){
-        var nb = menuItems[i]
-        if(nb.isNotebook){
+        var menuItem = menuItems[i]
+        if(menuItem.isNotebook){
             var temp = {
-                title: nb.name,
-                uuid: nb.name,
+                title: menuItem.name,
+                uuid: menuItem.name,
                 notes: 0
             }
 
-            var loaded = utils.loadNotebookByName(nb.name)
+            var loaded = utils.loadNotebookByName(menuItem.name)
 
-            nb.title = loaded.title
-            nb.uuid = loaded.uuid
-            nb.path = loaded.path
-            nb.notes = loaded.notes
+            menuItem.title = loaded.title
+            menuItem.uuid = loaded.uuid
+            menuItem.path = loaded.path
+            menuItem.notes = loaded.notes
         }
-        else if(nb.glob){
+        else if(menuItem.glob){
             var dataPath = utils.getAppDataPath()
-            var notes = glob.sync(path.join(dataPath, nb.glob))
+            var notes = glob.sync(path.join(dataPath, menuItem.glob))
 
-            nb.title = nb.name
-            nb.uuid = nb.name
-            nb.notes = notes.length
+            if(menuItem.filter){
+                notes = menuItem.filter(notes)
+            }
+
+            menuItem.title = menuItem.name
+            menuItem.uuid = menuItem.name
+            menuItem.notes = notes.length
         }
     }
 
