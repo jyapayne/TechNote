@@ -164,30 +164,6 @@ export default class LibraryNav extends React.Component {
         }
     }
 
-    entriesTapped = (i, item, type, ev) => {
-
-    };
-
-    starredTapped = (i, item, type, ev) => {
-
-    };
-
-    recentsTapped = (i, item, type, ev) => {
-        
-    };
-
-    trashTapped = (i, item, type, ev) => {
-        
-    };
-
-    allNotesTapped = (i, item, type, ev) => {
-        
-    };
-
-    blank(){
-    
-    }
-
     scrollToRenamedNotebook = (original) => {
         var newIndex = 0
         for (var j = 0; j < this.props.navigation.notebooks.length; j++){
@@ -207,7 +183,6 @@ export default class LibraryNav extends React.Component {
                 })
             }
         }
-    
     };
 
     initDefaultNotebookPath = (notebook) => {
@@ -237,7 +212,6 @@ export default class LibraryNav extends React.Component {
                 this.createNotebookMeta(notebook, callback)
             }
         })
-
     };
 
     createNewNotebook = (callback) => {
@@ -270,7 +244,6 @@ export default class LibraryNav extends React.Component {
                 callback(notebook, err)
             }
         })
-
     };
 
     newNotebookUnfocus = (i) => {
@@ -313,9 +286,11 @@ export default class LibraryNav extends React.Component {
 
     menuItemClicked = (i, ev) => {
         this.refs.notebookList.setIndex(-1)
+
         var item = this.props.navigation.menuItems[i]
         var type = 'leftClick'
         var nativeEvent = ev.nativeEvent
+
         if(nativeEvent.button == 2){
             //Right click
             type = 'rightClick'

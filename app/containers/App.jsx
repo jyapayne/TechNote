@@ -43,9 +43,6 @@ class App extends React.Component {
         }
     }
 
-    entriesTapped = () => {
-    };
-
   	handleRequestClose = () => {
         this.props.contextMenuActions.closeContextMenu()
   	};
@@ -82,7 +79,6 @@ class App extends React.Component {
                 <LibraryNav
                     id="library-nav"
                     ref="libraryNav"
-                    entriesTapped={this.entriesTapped}
                     className="left inline fill-height"
                     navigation={navigation}
                     {...navigationActions}
