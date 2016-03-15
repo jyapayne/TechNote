@@ -51,82 +51,12 @@ export default class LibraryNav extends React.Component {
         this.state = {
             open: true,
         }
-        this.navItems = [
-            {
-                'name': 'Entries',
-                'isNotebook': true,
-                'icon': <img src="images/note.svg"/>,
-                'clicked': this.props.entriesTapped || this.entriesTapped
-            },
-            {
-                'name': 'Starred',
-                'notes': 0,
-                'icon': <ActionGrade color={colors.amberA700}/>,
-                'clicked': this.props.starredTapped || this.starredTapped
-            },
-            {
-                'name': 'Recents',
-                'notes': 0,
-                'icon': <History color="#4BAE4E"/>,
-                'clicked': this.props.recentsTapped || this.recentsTapped
-            },
-            {
-                'name': 'Trash',
-                'isNotebook': true,
-                'icon': <Delete color={colors.grey500}/>,
-                'clicked': this.props.trashTapped || this.trashTapped
-            },
-            {
-                'name': 'All Notes',
-                'notes': 0,
-                'glob': '*.qvnotebook/*.qvnote',
-                'icon': <Folder color="#FFCC5F" />,
-                'clicked': this.props.allNotesTapped || this.allNotesTapped
-            }
 
-        ]
-
-        this.loadDefaultNotebooks()
         this.getNotebooks()
 
         const { store } = this.context
         store.subscribe(this.stateChanged)
     }
-
-    loadDefaultNotebooks = () => {
-        var notebooks = this.navItems
-        for(var i=0; i<notebooks.length; i++){
-            var nb = notebooks[i]
-            if(nb.isNotebook){
-                var temp = {
-                    title: nb.name,
-                    uuid: nb.name,
-                    notes: 0
-                }
-
-                this.initDefaultNotebookPath(temp)
-
-                var loaded = utils.loadNotebookByName(nb.name)
-
-                nb.title = loaded.title
-                nb.uuid = loaded.uuid
-                nb.path = loaded.path
-                nb.notes = loaded.notes
-            }
-            else if(nb.glob){
-                var dataPath = utils.getAppDataPath()
-                var notes = glob.sync(path.join(dataPath, nb.glob))
-
-                nb.title = nb.name
-                nb.uuid = nb.name
-                nb.notes = notes.length
-            }
-            if(i==0){
-                this.props.updateSelection(nb)
-            }
-            this.props.addMenuItem(nb)
-        }
-    };
 
     getNotebooks = () => {
         var dataPath = utils.getAppDataPath()
