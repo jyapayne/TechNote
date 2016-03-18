@@ -17,6 +17,38 @@ body, html{
     padding-bottom: 0px !important;
 }
 
+.entry-loader-enter {
+  opacity: 0.01;
+}
+
+.entry-loader-enter.entry-loader-enter-active {
+  opacity: 1;
+  transition: opacity 200ms ease-in;
+}
+
+.entry-loader-leave {
+  opacity: 1;
+}
+
+.entry-loader-leave.entry-loader-leave-active {
+  opacity: 0.01;
+  transition: opacity 200ms ease-in;
+}
+
+#entry-list .loader{
+    height: 100% !important;
+    position: fixed;
+    width: 338px;
+    background-color: rgba(0,0,0, 0.1);
+    z-index: 100;
+}
+
+#entry-list .loader .spinner{
+    position: relative !important;
+    top: -webkit-calc(50% - 50px);
+    left: -webkit-calc(50% - 25px);
+}
+
 .list {
     background-color: #EFEFEF !important;
 }

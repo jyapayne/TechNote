@@ -65,6 +65,7 @@
     "node-uuid": "^1.4.7",
     "path-extra": "^3.0.0",
     "react": "^0.14.7",
+    "react-addons-css-transition-group": "^0.14.7",
     "react-dom": "^0.14.7",
     "react-quill": "^0.4.1",
     "react-redux": "^4.4.0",

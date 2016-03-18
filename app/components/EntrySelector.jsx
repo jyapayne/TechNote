@@ -12,6 +12,7 @@ import Tag from 'material-ui/lib/svg-icons/maps/local-offer'
 import SearchBar from 'SearchBar'
 import SelectableList from 'SelectableList'
 import Item from 'Item'
+import EntryLoader from 'EntryLoader'
 
 import uuid from 'node-uuid'
 import path from 'path-extra'
@@ -44,7 +45,7 @@ export default class EntrySelector extends React.Component {
 
     constructor(props, context){
         super(props, context)
-        this.state = {notes: []}
+        this.state = {notes: [], loaded: false}
         this.loadNotes()
         const { store } = this.context
         store.subscribe(this.stateChanged)
@@ -75,18 +76,19 @@ export default class EntrySelector extends React.Component {
     loadNotes = () => {
         var notebook = this.props.navigation.selection
         if(!utils.isEmpty(notebook)){
-            var notes = utils.loadNotes(notebook)
-            notes.sort(utils.compareNotes())
-            this.state.notes = notes
+            var notes = utils.loadNotesAsync(notebook, (notes)=>{
+                notes.sort(utils.compareNotes())
+                this.setState({notes: notes, loaded: true})
+            })
         }
     }
 
     reloadNotes = (selection) => {
-        this.setState({notes: []}, ()=>{
+        this.setState({loaded: false}, ()=>{
             var notebook = selection || this.props.navigation.selection
             utils.loadNotesAsync(notebook, (notes) => {
                 notes.sort(utils.compareNotes())
-                this.setState({notes: notes})
+                this.setState({notes: notes, loaded: true})
             })
         })
     };
@@ -168,7 +170,7 @@ export default class EntrySelector extends React.Component {
 
     addNoteTapped = () => {
         this.createNewNote((note, err)=>{
-            this.props.refreshNavigation()
+            this.props.noteAdded()
         })
     };
 
@@ -209,6 +211,32 @@ export default class EntrySelector extends React.Component {
                 </div>)
     };
 
+    renderNotes = () => {
+        return this.state.notes.map((note, i) =>{
+                    return (<ListItem
+                                key={i}
+                                value={i}
+                                leftIcon={<Description color={Colors.grey600}/>}
+                                innerDivStyle={{paddingBottom: 40}}
+                                style={{borderBottom: '1px solid #F1F1F1'}}
+                                secondaryText={
+                                    <p>
+                                        {note.summary}
+                                    </p>
+                                }
+                                secondaryTextLines={2}
+                            >
+                                <div>
+                                    {note.title || "Untitled Note"}
+                                </div>
+
+                                {this.renderNoteInfo(note)}
+
+                            </ListItem>
+                            )
+                })
+    };
+
     render(){
         return (
             <Paper id={this.props.id} className={this.props.className+ " noselect"} zDepth={0}>
@@ -230,32 +258,12 @@ export default class EntrySelector extends React.Component {
                 <SelectableList
                     id="entry-list"
                     ref="entryList"
-                    selectedItemStyle={{backgroundColor: colors.grey300}}>
-
-                    {this.state.notes.map((note, i) =>{
-                        return (<ListItem
-                                    key={i}
-                                    value={i}
-                                    leftIcon={<Description color={colors.grey600}/>}
-                                    innerDivStyle={{paddingBottom: 40}}
-                                    style={{borderBottom: '1px solid #F1F1F1'}}
-                                    secondaryText={
-                                        <p>
-                                            {note.summary}
-                                        </p>
-                                    }
-                                    secondaryTextLines={2}
-                                >
-                                    <div>
-                                        {note.title || "Untitled Note"}
-                                    </div>
-
-                                    {this.renderNoteInfo(note)}
-
-                                </ListItem>
-                                )
-                        })
-                    }
+                    selectedItemStyle={{backgroundColor: Colors.grey100}}>
+                    <EntryLoader
+                        loaded={this.state.loaded}
+                    >
+                        {this.renderNotes()}
+                    </EntryLoader>
                 </SelectableList>
             </Paper>
         )
