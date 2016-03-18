@@ -72,3 +72,10 @@ export function refreshNavigation(callback){
         callback
     }
 }
+
+export function noteAdded(callback){
+    return {
+        type: types.NOTE_ADDED,
+        callback
+    }
+}

@@ -6,8 +6,10 @@ import {
     ADD_NOTEBOOK,
     REMOVE_NOTEBOOK,
     UPDATE_NOTEBOOK,
+    NOTE_ADDED,
     SORT_NOTEBOOKS,
     NOTEBOOK_TYPE,
+    MAX_MENU_ITEMS,
     MENU_TYPE,
     REFRESH
 } from '../constants/navigation'
@@ -65,9 +67,9 @@ function getInitialState(){
             'icon': <History color="#4BAE4E"/>,
             'glob': '*.qvnotebook/*.qvnote',
             'filter': (notes) => {
-                // Get the 10 most recent notes
+                // Get the most recent notes
                 notes.sort(utils.compareNotes())
-                return notes.slice(0, 10)
+                return notes.slice(0, MAX_MENU_ITEMS)
             }
         },
         {
@@ -129,6 +131,107 @@ function getInitialState(){
     return state
 }
 
+
+export default function navigation(state = initialState, action){
+    switch (action.type) {
+        case UPDATE_SELECTION:
+
+            var selectionDetails = findIndex(state, action.selection)
+
+            return Object.assign({}, state, {
+                selection: action.selection,
+                selectionType: selectionDetails.type,
+                selectionIndex: selectionDetails.index,
+                callback: action.callback || emptyFunc
+            })
+        case ADD_MENU_ITEM:
+            state.menuItems.push(action.item)
+            return Object.assign({}, state, {
+                menuItems: state.menuItems,
+                callback: action.callback || emptyFunc
+            })
+        case REMOVE_MENU_ITEM:
+            state.menuItems.splice(action.index, 1)
+            return Object.assign({}, state, {
+                menuItems: state.menuItems,
+                callback: action.callback || emptyFunc
+            })
+        case ADD_NOTEBOOK:
+            state.notebooks.splice(0, 0, action.notebook)
+            return Object.assign({}, state, {
+                notebooks: state.notebooks,
+                callback: action.callback || emptyFunc
+            })
+        case REMOVE_NOTEBOOK:
+            state.notebooks.splice(action.index, 1)
+            return Object.assign({}, state, {
+                notebooks: state.notebooks,
+                callback: action.callback || emptyFunc
+            })
+        case UPDATE_MENU_ITEM:
+            state.menuItems[action.index] = action.item
+            return Object.assign({}, state, {
+                menuItems: state.menuItems,
+                callback: action.callback || emptyFunc
+            })
+        case UPDATE_NOTEBOOK:
+            state.notebooks[action.index] = action.notebook
+            return Object.assign({}, state, {
+                notebooks: state.notebooks,
+                callback: action.callback || emptyFunc
+            })
+
+        case SORT_NOTEBOOKS:
+            state.notebooks.sort(action.sortFunc)
+            return Object.assign({}, state, {
+                notebooks: state.notebooks,
+                callback: action.callback || emptyFunc
+            })
+
+        case REFRESH:
+
+            var menuItems = refreshMenuItems(state)
+            var newNotebooks = refreshNotebooks()
+
+            return Object.assign({}, state, {
+                notebooks: newNotebooks,
+                menuItems: menuItems,
+                callback: action.callback || emptyFunc
+            })
+        case NOTE_ADDED:
+            var notebookIndex = state.selectionIndex
+
+            if(state.selectionType == MENU_TYPE){
+                var menuItem = state.menuItems[notebookIndex]
+                menuItem.notes += 1
+            }
+            else if(state.selectionType == NOTEBOOK_TYPE){
+                var notebook = state.notebooks[notebookIndex]
+                notebook.notes += 1
+            }
+
+            for(var i=0; i<state.menuItems.length; i++){
+                var menuItem = state.menuItems[i]
+                if (menuItem.uuid == 'All Notes'){
+                    menuItem.notes += 1
+                }
+                if(menuItem.uuid == 'Recents'){
+                    if(menuItem.notes < MAX_MENU_ITEMS){
+                        menuItem.notes += 1
+                    }
+                }
+            }
+
+            return Object.assign({}, state, {
+                notebooks: state.notebooks,
+                menuItems: state.menuItems,
+                callback: action.callback || emptyFunc
+            })
+
+        default:
+            return state
+    }
+}
 
 function findIndexGeneric(array, notebook, type){
     for(var i=0; i<array.length; i++){
@@ -223,76 +326,4 @@ function refreshNotebooks(){
 
     newNotebooks.sort(utils.compareNotebooks)
     return newNotebooks
-}
-
-export default function navigation(state = initialState, action){
-    switch (action.type) {
-        case UPDATE_SELECTION:
-
-            var selectionDetails = findIndex(state, action.selection)
-
-            return Object.assign({}, state, {
-                selection: action.selection,
-                selectionType: selectionDetails.type,
-                selectionIndex: selectionDetails.index,
-                callback: action.callback || emptyFunc
-            })
-        case ADD_MENU_ITEM:
-            state.menuItems.push(action.item)
-            return Object.assign({}, state, {
-                menuItems: state.menuItems,
-                callback: action.callback || emptyFunc
-            })
-        case REMOVE_MENU_ITEM:
-            state.menuItems.splice(action.index, 1)
-            return Object.assign({}, state, {
-                menuItems: state.menuItems,
-                callback: action.callback || emptyFunc
-            })
-        case ADD_NOTEBOOK:
-            state.notebooks.splice(0, 0, action.notebook)
-            return Object.assign({}, state, {
-                notebooks: state.notebooks,
-                callback: action.callback || emptyFunc
-            })
-        case REMOVE_NOTEBOOK:
-            state.notebooks.splice(action.index, 1)
-            return Object.assign({}, state, {
-                notebooks: state.notebooks,
-                callback: action.callback || emptyFunc
-            })
-        case UPDATE_MENU_ITEM:
-            state.menuItems[action.index] = action.item
-            return Object.assign({}, state, {
-                menuItems: state.menuItems,
-                callback: action.callback || emptyFunc
-            })
-        case UPDATE_NOTEBOOK:
-            state.notebooks[action.index] = action.notebook
-            return Object.assign({}, state, {
-                notebooks: state.notebooks,
-                callback: action.callback || emptyFunc
-            })
-
-        case SORT_NOTEBOOKS:
-            state.notebooks.sort(action.sortFunc)
-            return Object.assign({}, state, {
-                notebooks: state.notebooks,
-                callback: action.callback || emptyFunc
-            })
-
-        case REFRESH:
-
-            var menuItems = refreshMenuItems(state)
-            var newNotebooks = refreshNotebooks()
-
-            return Object.assign({}, state, {
-                notebooks: newNotebooks,
-                menuItems: menuItems,
-                callback: action.callback || emptyFunc
-            })
-
-        default:
-            return state
-    }
 }
