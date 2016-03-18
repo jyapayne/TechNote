@@ -20,10 +20,8 @@ import * as utils from 'utils'
 
 import glob from 'glob'
 import moment from 'moment'
-import fs from 'fs'
 import mkdirp from 'mkdirp'
 import jsfile from 'jsonfile'
-import rmdir from 'rimraf'
 
 import {
     NOTEBOOK_TYPE,
@@ -38,7 +36,7 @@ const {
     Paper
 } = mui
 
-const colors = Styles.Colors
+const Colors = Styles.Colors
 
 const DefaultRawTheme = Styles.LightRawTheme
 
@@ -184,7 +182,7 @@ export default class EntrySelector extends React.Component {
                         touch={true}
                         tooltip={note.tags.join(", ")}
                     >
-                        <Tag color={colors.grey400}/>
+                        <Tag color={Colors.grey400}/>
                     </IconButton>
                     <div className="tag-list inline">
                         {utils.trunc(note.tags.join(", "), 30)}
@@ -199,7 +197,7 @@ export default class EntrySelector extends React.Component {
             position: "absolute",
             top: 70,
             left: 20,
-            color: colors.grey400,
+            color: Colors.grey400,
             fontSize: 14
         }
 
@@ -222,7 +220,7 @@ export default class EntrySelector extends React.Component {
                             touch={true}
                             onTouchTap={this.addNoteTapped}
                             tooltip="Add New Note">
-                                <Add color={colors.grey600}/>
+                                <Add color={Colors.grey600}/>
                         </IconButton>}
                      hintText="Filter by keyword, title or tag."
                      innerTextFieldWidth={210}

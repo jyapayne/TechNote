@@ -13,7 +13,7 @@ const {
     Paper
 } = mui
 
-const colors = Styles.Colors
+const Colors = Styles.Colors
 
 const DefaultRawTheme = Styles.LightRawTheme
 
@@ -35,7 +35,6 @@ export default class SearchBar extends React.Component {
     }
 
     blank(){
-    
     }
 
     render(){
@@ -49,7 +48,7 @@ export default class SearchBar extends React.Component {
                     id="search-bar"
                     active={false}
                     selected={false}
-                    leftIcon={<Search color={colors.grey600}/>}
+                    leftIcon={<Search color={Colors.grey600}/>}
                     rightIconButton={this.props.rightIconButton}>
                     <TextField
                         hintText={this.props.hintText || ""}

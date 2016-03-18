@@ -1,6 +1,5 @@
 import React from 'react'
 
-import styles from 'material-ui/lib/styles'
 import List from 'material-ui/lib/lists/list'
 import { SelectableContainerEnhance } from '../enhance/SelectableEnhance'
 

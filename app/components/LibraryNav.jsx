@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom'
 import mui from 'material-ui'
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme'
 
-import styles from 'material-ui/lib/styles'
 import List from 'material-ui/lib/lists/list'
 import ListItem from 'material-ui/lib/lists/list-item'
 import ActionGrade from 'material-ui/lib/svg-icons/action/grade'
@@ -27,8 +26,6 @@ import mkdirp from 'mkdirp'
 import jsfile from 'jsonfile'
 import rmdir from 'rimraf'
 
-const colors = styles.Colors
-
 String.prototype.trunc = String.prototype.trunc || function(n){
           return (this.length > n) ? this.substr(0, n-1)+'...' : this;
 };
@@ -42,6 +39,7 @@ const {
     Paper
 } = mui
 
+const Colors = Styles.Colors
 const DefaultRawTheme = Styles.LightRawTheme
 
 export default class LibraryNav extends React.Component {
@@ -90,7 +88,7 @@ export default class LibraryNav extends React.Component {
 
     getChildContext() {
         return {
-            muiTheme: getMuiTheme(DefaultRawTheme)
+            muiTheme: this.context.muiTheme || getMuiTheme(DefaultRawTheme)
         }
     }
 
@@ -338,7 +336,7 @@ export default class LibraryNav extends React.Component {
                                     innerDivStyle={{'paddingBottom': 0,
                                                     'paddingTop': 0}}
                                     onTouchTap={this.noteBookTapped.bind(this, i)}
-                                    leftIcon={<NoteBook color={colors.grey500}/>}
+                                    leftIcon={<NoteBook color={Colors.grey500}/>}
                                     rightIcon={<Badge badgeContent={notebook.notes}/>}>
 
                                     
@@ -371,7 +369,7 @@ export default class LibraryNav extends React.Component {
                                                 style={{padding: 0}}
                                             >
                                                   <NoteBook
-                                                      color={colors.grey500}/>
+                                                      color={Colors.grey500}/>
                                               </IconButton>
                                               }
                                     rightIcon={<Badge 
@@ -406,7 +404,7 @@ export default class LibraryNav extends React.Component {
                     className="list"
                     initialIndex={0}
                     id="main-nav"
-                    selectedItemStyle={{backgroundColor: colors.lightBlue100}}
+                    selectedItemStyle={{backgroundColor: Colors.lightBlue100}}
                     subheader="Library">
                         {this.props.navigation.menuItems.map((item, i) => {
                             return <ListItem
@@ -424,7 +422,7 @@ export default class LibraryNav extends React.Component {
                       id="nblist"
                       className="list"
                       ref='notebookList'
-                      selectedItemStyle={{backgroundColor: colors.lightBlue100}}
+                      selectedItemStyle={{backgroundColor: Colors.lightBlue100}}
                       subheader={<div>
                                     <div className="inline">NoteBooks</div>
                                     <IconButton
@@ -435,7 +433,7 @@ export default class LibraryNav extends React.Component {
                                         style={{'zIndex': 1000}}
                                         className="right inline">
                                         <AddCircleOutline
-                                            color={colors.grey500}/>
+                                            color={Colors.grey500}/>
                                     </IconButton>
                                 </div>}>
                         {this.notebookList()}
