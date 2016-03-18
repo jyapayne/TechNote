@@ -118,6 +118,9 @@ export function loadNotesAsync(notebook, callback){
     var notes = []
 
     glob(noteGlob, (err, notePaths) => {
+        if (notePaths.length == 0){
+            callback(notes)
+        }
         for(var i=0; i<notePaths.length; i++){
             var notePath = notePaths[i]
             loadNoteAsync(notePath, (note) => {
