@@ -4,16 +4,24 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import TestUtils from 'react-addons-test-utils'
 
-import * as utils from '../../utils'
-utils.APP_NAME = 'JestTest'
 import path from 'path'
 
 import fs from 'fs'
+
+const Chrome49 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2454.85 Safari/537.36'
+
+global.navigator = { userAgent: Chrome49 }
 
 const injectTapEventPlugin = require("react-tap-event-plugin")
 injectTapEventPlugin()
 
 const LibraryNav = require('../LibraryNav').default
+const { Provider } = require('react-redux')
+const App = require('../../containers/App').default
+
+const configureStore  = require('../../store/configureStore').default
+
+const store = configureStore()
 
 function tap(element){
     var dom = ReactDOM.findDOMNode(element).firstChild
@@ -22,36 +30,43 @@ function tap(element){
 
 describe('LibraryNav', () => {
 
-    beforeEach(() => {
-    })
-
-    it('test index select', () => {
-        var libraryNav = TestUtils.renderIntoDocument(
-            <LibraryNav id="library-nav" className="left inline fill-height" />
+    it('test index select', (done) => {
+        var prov = TestUtils.renderIntoDocument(
+            <Provider store={store}>
+                <App />
+            </Provider>
         )
-        expect(libraryNav.state.navItems.length).toEqual(5)
+        var libraryNav = TestUtils.findRenderedComponentWithType(prov, LibraryNav)
 
-        var libraryNavList = libraryNav.refs.mainList
+        var state = libraryNav.context.store.getState()
+        expect(state.navigation.menuItems.length).toEqual(5)
 
-        var entriesItem = libraryNav.refs.Entries
-        tap(entriesItem)
-        expect(libraryNavList.state.selectedIndex).toEqual(0)
+        expect(state.navigation.selectionIndex).toEqual(0)
 
         var allNotesItem = libraryNav.refs['All Notes']
-        tap(allNotesItem)
-        expect(libraryNavList.state.selectedIndex).toEqual(4)
+        libraryNav.menuItemClicked(allNotesItem.props.value, {}, () => {
+            state = libraryNav.context.store.getState()
+            expect(state.navigation.selectionIndex).toEqual(4)
+            done()
+        })
+
     })
 
     it('test add notebook', (done) => {
     
-        var libraryNav = TestUtils.renderIntoDocument(
-            <LibraryNav id="library-nav" className="left inline fill-height" />
+        var prov = TestUtils.renderIntoDocument(
+            <Provider store={store}>
+                <App />
+            </Provider>
         )
-        
-        var initialLen = libraryNav.state.notebooks.length
+        var libraryNav = TestUtils.findRenderedComponentWithType(prov, LibraryNav)
+
+        var state = libraryNav.context.store.getState()
+
+        var initialLen = state.navigation.notebooks.length
 
         var callback = (notebook) => {
-            var afterLen = libraryNav.state.notebooks.length
+            var afterLen = state.navigation.notebooks.length
 
             expect(afterLen).toBeGreaterThan(initialLen)
 
@@ -67,14 +82,19 @@ describe('LibraryNav', () => {
     })
 
     it('test delete notebook', (done) => {
-        var libraryNav = TestUtils.renderIntoDocument(
-            <LibraryNav id="library-nav" className="left inline fill-height" />
+        var prov = TestUtils.renderIntoDocument(
+            <Provider store={store}>
+                <App />
+            </Provider>
         )
+        var libraryNav = TestUtils.findRenderedComponentWithType(prov, LibraryNav)
 
-        var initialLen = libraryNav.state.notebooks.length
+        var state = libraryNav.context.store.getState()
+
+        var initialLen = state.navigation.notebooks.length
 
         var callback = (notebook) => {
-            var afterLen = libraryNav.state.notebooks.length
+            var afterLen = state.navigation.notebooks.length
 
             expect(initialLen).toBeGreaterThan(afterLen)
 
