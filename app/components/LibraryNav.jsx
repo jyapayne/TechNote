@@ -15,6 +15,7 @@ import Edit from 'material-ui/lib/svg-icons/editor/mode-edit'
 import Delete from 'material-ui/lib/svg-icons/action/delete'
 import Divider from 'material-ui/lib/divider'
 import SelectableList from 'SelectableList'
+import TextField from 'TextField'
 
 import uuid from 'node-uuid'
 import path from 'path-extra'
@@ -34,7 +35,6 @@ const {
     IconButton,
     MenuItem,
     Badge,
-    TextField,
     Styles,
     Paper
 } = mui
@@ -216,25 +216,35 @@ export default class LibraryNav extends React.Component {
 
     };
 
-    menuItemClicked = (i, ev) => {
+    menuItemClicked = (i, ev, callback) => {
         this.refs.notebookList.setIndex(-1)
 
         var item = this.props.navigation.menuItems[i]
         var type = 'leftClick'
         var nativeEvent = ev.nativeEvent
 
-        if(nativeEvent.button == 2){
-            //Right click
-            type = 'rightClick'
+        if(nativeEvent){
+            if(nativeEvent.button == 2){
+                //Right click
+                type = 'rightClick'
+            }
         }
 
         if (item.isNotebook){
             var notebook = utils.loadNotebookByName(item.name)
             notebook = utils.updateObject(item, notebook)
-            this.props.updateSelection(notebook)
+            this.props.updateSelection(notebook, () => {
+                if(utils.isFunction(callback)){
+                    callback(i, item, type, ev)
+                }
+            })
         }
         else if(item.glob){
-            this.props.updateSelection(item)
+            this.props.updateSelection(item, () => {
+                if(utils.isFunction(callback)){
+                    callback(i, item, type, ev)
+                }
+            })
         }
 
         // Process any callbacks attached to the menu
@@ -248,9 +258,7 @@ export default class LibraryNav extends React.Component {
     renameTapped = (i) => {
         var nbs = this.props.navigation.notebooks
         nbs[i].state = 'editing'
-        this.props.updateNotebook(nbs[i], i, () => {
-            this.refs['textField'+i].focus()
-        })
+        this.props.updateNotebook(nbs[i], i)
         this.props.closeContextMenu()
     }
 
@@ -317,7 +325,6 @@ export default class LibraryNav extends React.Component {
             this.props.updateSelection(this.props.navigation.notebooks[i])
         }
         this.refs.mainList.setIndex(-1)
-
     };
 
     preventEventProp = (ev) => {
@@ -329,6 +336,11 @@ export default class LibraryNav extends React.Component {
 
                     {this.props.navigation.notebooks.map((notebook, i) =>{
                         var l = null
+                        var selIndex = this.props.navigation.selectionIndex
+                        var focus = false
+                        if (selIndex == i){
+                            focus = true
+                        }
                         if (notebook.state == 'editing'){
                             l = <ListItem
                                     key={notebook.uuid || i}
@@ -342,6 +354,7 @@ export default class LibraryNav extends React.Component {
                                     
                                     <TextField
                                         ref={"textField"+i}
+                                        focus={focus}
                                         fullWidth={true}
                                         style={{maxWidth: 120}}
                                         hintText={notebook.title.trunc(14) || "Notebook Name"}

@@ -86,6 +86,7 @@ class App extends React.Component {
                 />
                 <EntrySelector
                     id="entry-selector"
+                    ref="entrySelector"
                     className="left inline fill-height"
                     navigation={navigation}
                     {...navigationActions}
